@@ -1,0 +1,119 @@
+/* 디자인 토큰 — 팔레트 A: 인디고 브랜드 + 멀티 액센트 (plan.md §4.2) */
+:root {
+  --brand: oklch(0.55 0.2 275);
+  --brand-soft: oklch(0.94 0.04 275);
+  --coral: oklch(0.7 0.18 25);
+  --coral-soft: oklch(0.95 0.04 25);
+  --amber: oklch(0.8 0.16 80);
+  --amber-soft: oklch(0.96 0.05 85);
+  --mint: oklch(0.78 0.14 165);
+  --mint-soft: oklch(0.95 0.05 165);
+  --sky: oklch(0.75 0.13 230);
+  --sky-soft: oklch(0.95 0.04 230);
+  --violet: oklch(0.65 0.18 300);
+  --violet-soft: oklch(0.95 0.04 300);
+
+  --background: oklch(0.985 0.002 90);
+  --foreground: oklch(0.21 0.006 285);
+  --card: oklch(1 0 0);
+  --card-foreground: var(--foreground);
+  --popover: oklch(1 0 0);
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand);
+  --primary-foreground: oklch(0.99 0 0);
+  --secondary: oklch(0.96 0.003 90);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.96 0.003 90);
+  --muted-foreground: oklch(0.5 0.01 285);
+  --accent: oklch(0.955 0.005 285);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.577 0.245 27.325);
+  --border: oklch(0.92 0.004 90);
+  --input: oklch(0.92 0.004 90);
+  --ring: var(--brand);
+  --radius: 0.75rem;
+  --radius-card: 1.5rem;
+
+  --sidebar: oklch(0.975 0.002 90);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: oklch(0.99 0 0);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--brand);
+  --chart-1: var(--brand);
+  --chart-2: var(--coral);
+  --chart-3: var(--amber);
+  --chart-4: var(--mint);
+  --chart-5: var(--sky);
+}
+
+.dark {
+  --brand: oklch(0.72 0.16 275);
+  --brand-soft: oklch(0.3 0.06 275);
+  --coral: oklch(0.72 0.16 25);
+  --coral-soft: oklch(0.3 0.06 25);
+  --amber: oklch(0.8 0.14 80);
+  --amber-soft: oklch(0.32 0.06 85);
+  --mint: oklch(0.76 0.12 165);
+  --mint-soft: oklch(0.29 0.05 165);
+  --sky: oklch(0.74 0.11 230);
+  --sky-soft: oklch(0.29 0.05 230);
+  --violet: oklch(0.7 0.16 300);
+  --violet-soft: oklch(0.3 0.06 300);
+
+  --background: oklch(0.17 0.008 290);
+  --foreground: oklch(0.96 0.003 90);
+  --card: oklch(0.2 0.008 290);
+  --card-foreground: var(--foreground);
+  --popover: oklch(0.2 0.008 290);
+  --popover-foreground: var(--foreground);
+  --primary: var(--brand);
+  --primary-foreground: oklch(0.15 0.02 275);
+  --secondary: oklch(0.24 0.008 290);
+  --secondary-foreground: var(--foreground);
+  --muted: oklch(0.24 0.008 290);
+  --muted-foreground: oklch(0.7 0.01 285);
+  --accent: oklch(0.26 0.009 290);
+  --accent-foreground: var(--foreground);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.3 0.01 290);
+  --input: oklch(0.3 0.01 290);
+  --ring: var(--brand);
+
+  --sidebar: oklch(0.19 0.008 290);
+  --sidebar-foreground: var(--foreground);
+  --sidebar-primary: var(--brand);
+  --sidebar-primary-foreground: oklch(0.15 0.02 275);
+  --sidebar-accent: var(--accent);
+  --sidebar-accent-foreground: var(--foreground);
+  --sidebar-border: var(--border);
+  --sidebar-ring: var(--brand);
+}
+
+/* 카드별 액센트: data-accent 속성으로 --tone / --tone-soft 결정 */
+[data-accent="brand"] {
+  --tone: var(--brand);
+  --tone-soft: var(--brand-soft);
+}
+[data-accent="coral"] {
+  --tone: var(--coral);
+  --tone-soft: var(--coral-soft);
+}
+[data-accent="amber"] {
+  --tone: var(--amber);
+  --tone-soft: var(--amber-soft);
+}
+[data-accent="mint"] {
+  --tone: var(--mint);
+  --tone-soft: var(--mint-soft);
+}
+[data-accent="sky"] {
+  --tone: var(--sky);
+  --tone-soft: var(--sky-soft);
+}
+[data-accent="violet"] {
+  --tone: var(--violet);
+  --tone-soft: var(--violet-soft);
+}

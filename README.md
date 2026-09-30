@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# gilhyeon.com
 
-## Getting Started
+이길현(Gilhyeon Lee)의 개인 프로필 사이트 — 프로필 + 블로그 + 프로젝트 + 방명록.
+설계·마일스톤은 [`plan.md`](./plan.md)를 기준으로 한다.
 
-First, run the development server:
+## 스택 (P0 기준 고정 버전)
+
+| 항목 | 버전 |
+|---|---|
+| Node.js | 24.x (`.nvmrc`, `package.json#engines`) — 로컬·CI·Vercel 동일 |
+| Next.js | 16.3.7 (App Router, Turbopack) |
+| React | 19.2.8 |
+| Tailwind CSS | v4 (`@tailwindcss/postcss`) |
+| shadcn/ui | v4 (Base UI 기반, style `base-nova`) |
+| TypeScript | 5.x |
+| 패키지 매니저 | npm (lockfile 커밋) |
+
+## 스크립트
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run dev          # 개발 서버
+npm run check        # lint + typecheck + build (CI와 동일)
+npm run lint         # eslint .
+npm run typecheck    # tsc --noEmit
+npm run format       # prettier --write .
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 환경변수
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+`.env.example`을 `.env.local`로 복사해 채운다. DB 변수가 없어도 빌드와 정적 페이지 렌더는 성공해야 한다.
+서버 전용 값(`SUPABASE_SECRET_KEY`, `CRON_SECRET`, `VIEW_HASH_SECRET`)은 절대 `NEXT_PUBLIC_` 접두어를 붙이지 않는다.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 디렉터리 (P0)
 
-## Learn More
+```
+src/
+├─ app/            # layout, page(홈 셸), not-found, error, robots
+├─ components/
+│  ├─ layout/      # SiteHeader, MobileNav, SiteFooter, ThemeToggle, Container, NavLink
+│  └─ ui/          # shadcn 프리미티브
+├─ lib/            # site-config(이름·링크·내비·fallback 문구), site-url(환경별 origin), utils
+└─ styles/tokens.css   # 디자인 토큰 (팔레트 A)
+```
 
-To learn more about Next.js, take a look at the following resources:
+## 진행 상황
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [x] P0 기반 — 스캐폴딩, 토큰, 레이아웃, 다크모드, 메타데이터, robots
+- [ ] P1 Supabase·인증·관리자 게이트
+- [ ] P2 마크다운 파이프라인·글 에디터
+- [ ] P3 공개 블로그·조회수
+- [ ] P4 홈·About·프로젝트 + 에디터
+- [ ] P5 방명록·모더레이션
+- [ ] P6 마감·도메인
