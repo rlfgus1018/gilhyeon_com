@@ -43,11 +43,15 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  nativeButton,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
+  // render로 <a>/<Link> 등 비-button 요소를 넘기면 Base UI가 nativeButton=false를 요구한다.
+  const isNative = nativeButton ?? props.render === undefined;
   return (
     <ButtonPrimitive
       data-slot="button"
+      nativeButton={isNative}
       className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
