@@ -34,12 +34,12 @@ export function remarkDirectiveHandlers() {
       d.data ??= {};
 
       if (d.type === "containerDirective" && d.name === "callout") {
-        const type = CALLOUT_TYPES.has(attrs.type ?? "") ? attrs.type : "info";
+        const type = attrs.type && CALLOUT_TYPES.has(attrs.type) ? attrs.type : "info";
         d.data.hName = "aside";
         d.data.hProperties = {
           className: ["callout"],
           dataType: type,
-          dataTitle: attrs.title ?? undefined,
+          dataTitle: attrs.title || undefined,
         };
         return;
       }

@@ -122,3 +122,98 @@
     }
   }
 }
+
+/* ---------- 본문(prose) ---------- */
+@plugin "@tailwindcss/typography";
+
+@layer components {
+  .prose-article {
+    @apply prose prose-neutral dark:prose-invert max-w-none;
+    @apply prose-headings:scroll-mt-24 prose-headings:font-semibold prose-a:text-brand prose-a:no-underline hover:prose-a:underline;
+    @apply prose-img:rounded-2xl prose-pre:rounded-2xl prose-pre:border prose-pre:bg-card prose-code:before:content-none prose-code:after:content-none;
+  }
+  .prose-article :where(h2, h3) a.heading-anchor {
+    color: inherit;
+    text-decoration: none;
+    font-weight: inherit;
+  }
+  .prose-article :where(code):not(pre code) {
+    @apply bg-muted rounded-md px-1.5 py-0.5 text-[0.9em] font-normal;
+  }
+  /* rehype-pretty-code: 듀얼 테마 CSS 변수 */
+  .prose-article pre code span {
+    color: var(--shiki-light);
+  }
+  .dark .prose-article pre code span {
+    color: var(--shiki-dark);
+  }
+  .prose-article pre {
+    @apply overflow-x-auto p-4 text-sm leading-relaxed;
+  }
+  .prose-article pre code {
+    @apply grid bg-transparent p-0;
+    counter-reset: line;
+  }
+  .prose-article pre code [data-line] {
+    @apply border-l-2 border-transparent px-1;
+  }
+  .prose-article pre code [data-highlighted-line] {
+    @apply border-brand bg-brand-soft/60;
+  }
+  .prose-article figure[data-rehype-pretty-code-figure] {
+    @apply relative my-6;
+  }
+  .prose-article figcaption[data-rehype-pretty-code-title] {
+    @apply bg-muted text-muted-foreground rounded-t-2xl border border-b-0 px-4 py-2 font-mono text-xs;
+  }
+  .prose-article figcaption[data-rehype-pretty-code-title] + pre {
+    @apply mt-0 rounded-t-none;
+  }
+  /* 디렉티브 */
+  .prose-article aside.callout {
+    @apply border-tone bg-tone-soft/50 my-6 rounded-2xl border-l-4 px-5 py-4;
+  }
+  .prose-article aside.callout[data-type="info"] {
+    --tone: var(--sky);
+    --tone-soft: var(--sky-soft);
+  }
+  .prose-article aside.callout[data-type="tip"] {
+    --tone: var(--mint);
+    --tone-soft: var(--mint-soft);
+  }
+  .prose-article aside.callout[data-type="warn"] {
+    --tone: var(--amber);
+    --tone-soft: var(--amber-soft);
+  }
+  .prose-article aside.callout[data-title]::before {
+    content: attr(data-title);
+    @apply mb-1 block text-sm font-semibold;
+  }
+  .prose-article aside.callout > :last-child {
+    margin-bottom: 0;
+  }
+  .prose-article aside.callout > :first-child {
+    margin-top: 0;
+  }
+  .prose-article figure.figure {
+    @apply my-8 text-center;
+  }
+  .prose-article figure.figure img {
+    @apply mx-auto;
+  }
+  .prose-article figure.figure figcaption {
+    @apply text-muted-foreground mt-2 text-sm;
+  }
+  .prose-article div.youtube {
+    @apply bg-muted relative my-6 aspect-video overflow-hidden rounded-2xl;
+  }
+  .prose-article div.youtube > p {
+    @apply absolute inset-0 m-0 flex items-center justify-center text-sm;
+  }
+  .prose-article .katex-display {
+    @apply overflow-x-auto py-2;
+  }
+  .prose-article :where(table) {
+    @apply block overflow-x-auto;
+  }
+}
