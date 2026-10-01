@@ -198,6 +198,7 @@ create or replace view public.guestbook_public with (security_barrier = true) as
   select id, author_name, avatar_url, message, color, created_at
   from public.guestbook
   where is_hidden = false;
+revoke all on public.guestbook_public from public, anon, authenticated;  -- 기본 권한(ALL) 제거
 grant select on public.guestbook_public to anon, authenticated;
 
 drop policy if exists guestbook_select on public.guestbook;
