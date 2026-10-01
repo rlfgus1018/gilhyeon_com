@@ -27,3 +27,31 @@ export type PostInput = z.input<typeof postInputSchema>;
 export type PostInputParsed = z.output<typeof postInputSchema>;
 
 export const previewSchema = z.object({ content_md: z.string().max(200_000) });
+
+export const projectInputSchema = z.object({
+  id: z.string().uuid().nullable().default(null),
+  title: z.string().trim().min(1, "제목을 입력해 주세요").max(120),
+  slug: z.string().trim().regex(SLUG_RE, "slug는 영문 소문자·숫자·하이픈만").max(80),
+  summary: z.string().trim().max(200, "요약은 200자 이내").default(""),
+  content_md: z.string().max(200_000).default(""),
+  type: z.enum(["ai", "web", "other"]).default("ai"),
+  tech: z.array(z.string().trim().min(1).max(30)).max(12).default([]),
+  links: z
+    .object({
+      github: z.string().url("올바른 URL이 아니에요").or(z.literal("")).default(""),
+      demo: z.string().url("올바른 URL이 아니에요").or(z.literal("")).default(""),
+      post: z
+        .string()
+        .regex(/^\/blog\/[a-z0-9-]+$/, "/blog/slug 형식")
+        .or(z.literal(""))
+        .default(""),
+    })
+    .default({ github: "", demo: "", post: "" }),
+  thumbnail_media_id: z.string().uuid().nullable().default(null),
+  featured: z.boolean().default(false),
+  work_status: z.enum(["done", "wip", "archived"]).default("done"),
+  status: z.enum(["draft", "published"]).default("draft"),
+  sort_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "YYYY-MM-DD 형식"),
+  expected_updated_at: z.string().nullable().default(null),
+});
+export type ProjectInput = z.input<typeof projectInputSchema>;

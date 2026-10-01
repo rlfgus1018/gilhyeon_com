@@ -1,4 +1,5 @@
 import { requireAdminPage } from "@/lib/admin/guard";
+import { RefreshCachesButton } from "@/components/admin/refresh-caches-button";
 
 type Status = {
   posts_published: number;
@@ -44,9 +45,12 @@ export default async function AdminDashboardPage() {
 
   return (
     <div className="space-y-8">
-      <header>
-        <h1 className="text-2xl font-bold">대시보드</h1>
-        <p className="text-muted-foreground mt-1 text-sm">사이트 현황을 한눈에 봅니다.</p>
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold">대시보드</h1>
+          <p className="text-muted-foreground mt-1 text-sm">사이트 현황을 한눈에 봅니다.</p>
+        </div>
+        <RefreshCachesButton />
       </header>
 
       {error ? (

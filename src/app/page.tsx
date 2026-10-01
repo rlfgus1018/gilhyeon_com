@@ -1,41 +1,53 @@
-import Link from "next/link";
-import { ArrowRightIcon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Container } from "@/components/layout/container";
-import { siteConfig } from "@/lib/site-config";
+import { Hero } from "@/components/home/hero";
+import { PhotoStrip } from "@/components/home/photo-strip";
+import { Bento } from "@/components/home/bento";
+import { LatestPosts } from "@/components/home/latest-posts";
+import { SiteCards } from "@/components/home/site-cards";
+import { GuestbookCta } from "@/components/home/guestbook-cta";
+import { getSiteContent } from "@/lib/content/site";
+import { getPublishedPosts, getViewCounts } from "@/lib/content/posts";
+import { getPublishedProjects } from "@/lib/content/projects";
+import { getGuestbookPreview } from "@/lib/content/guestbook";
+
+export const revalidate = 300;
 
 /**
- * P0 홈 셸. P4에서 site_content 기반 히어로·사진 스트립·벤토·최신 글·My Site 섹션으로 확장된다.
- * DB 장애 시에도 이 fallback 문구는 항상 표시된다 (plan.md §3.1).
+ * 홈 — ISR 5분. 모든 데이터는 쿠키 없는 공개 클라이언트로 읽고, 실패하면 섹션별 fallback을 보여준다 (plan.md §3.1).
  */
-export default function HomePage() {
-  const { heroGreeting, heroIntro } = siteConfig.fallback;
+export default async function HomePage() {
+  const [site, posts, projects, guestbook] = await Promise.all([
+    getSiteContent(),
+    getPublishedPosts(3),
+    getPublishedProjects(4),
+    getGuestbookPreview(3),
+  ]);
+  const latest = posts.ok ? posts.data : [];
+  const views = posts.ok
+    ? await getViewCounts(latest.map((p) => p.slug))
+    : { ok: false as const, map: new Map<string, number>() };
+  const avatar = site.data.hero.avatar_media_id
+    ? (site.media.get(site.data.hero.avatar_media_id) ?? null)
+    : null;
+
   return (
-    <Container className="py-20 sm:py-28">
-      <section className="grid items-center gap-10 md:grid-cols-[1fr_auto]">
-        <div className="space-y-6">
-          <h1 className="text-4xl font-bold sm:text-5xl">{heroGreeting}</h1>
-          <p className="text-muted-foreground max-w-xl text-lg">
-            {heroIntro[0]} {heroIntro[1]}
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Button size="lg" render={<Link href="/about" />}>
-              소개 보기
-              <ArrowRightIcon aria-hidden />
-            </Button>
-            <Button size="lg" variant="outline" render={<Link href="/guestbook" />}>
-              방명록 남기기
-            </Button>
-          </div>
-        </div>
-        <div
-          aria-hidden
-          className="bg-brand-soft relative mx-auto size-44 rotate-3 rounded-[var(--radius-card)] sm:size-56"
-        >
-          <div className="bg-coral-soft absolute -right-4 -bottom-4 size-16 rounded-2xl" />
-          <div className="bg-mint-soft absolute -top-4 -left-4 size-12 rounded-full" />
-        </div>
-      </section>
+    <Container className="space-y-20 py-16 sm:py-24">
+      <Hero hero={site.data.hero} avatar={avatar} />
+      <PhotoStrip photos={site.data.photos} media={site.media} />
+      <Bento intro={site.data.intro} now={site.data.now} stack={site.data.stack} />
+      <LatestPosts posts={latest} views={views.ok ? views.map : null} ok={posts.ok} />
+      <SiteCards
+        guestbook={guestbook}
+        projects={{
+          ok: projects.ok,
+          items: projects.ok
+            ? projects.data
+                .filter((p) => p.featured)
+                .concat(projects.data.filter((p) => !p.featured))
+            : [],
+        }}
+      />
+      <GuestbookCta />
     </Container>
   );
 }

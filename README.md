@@ -48,6 +48,41 @@ src/
 - [x] P1 Supabase·인증·관리자 게이트 — 스키마 0001~0003, OAuth(GitHub), 관리자 게이트, 크론
 - [x] P2 마크다운 파이프라인·글 에디터 — unified 컴파일러, CodeMirror 에디터, 미디어 업로드, e2e 3건
 - [x] P3 공개 블로그·조회수 — 목록(태그 필터)·상세(목차·복사·YouTube)·조회수 API·RSS·sitemap
-- [ ] P4 홈·About·프로젝트 + 에디터
+- [~] P4 홈·About·프로젝트 + 에디터 — 코드 작성·빌드 통과, **e2e 미실행** (아래 '이어하기' 참고)
 - [ ] P5 방명록·모더레이션
 - [ ] P6 마감·도메인
+
+## 이어하기 (2026-10-01 중단 시점)
+
+### 현재 상태
+- P0~P3 완료·검증됨. P4는 코드 작성과 `npm run check`(lint·typecheck·build)까지 통과했고, 아래 두 검증만 남았다.
+  1. `npx playwright test tests/e2e/admin-site-projects.spec.ts` — 사이트 에디터(히어로 저장→홈 반영)와 프로젝트 생성→공개→카드·상세→휴지통. **아직 한 번도 실행하지 않음.** 실패하면 셀렉터부터 확인.
+  2. DB 환경변수를 비운 빌드: `NEXT_PUBLIC_SUPABASE_URL= NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY= SUPABASE_SECRET_KEY= npx next build` 후 `next start`로 홈이 fallback 문구로 뜨는지 확인.
+- 운영 DB(Supabase)에는 마이그레이션 0001~0003이 적용돼 있고, 관리자 1명(GitHub 로그인 계정)이 `private.admins`에 등록돼 있다. 글·프로젝트·미디어는 아직 없다(e2e가 만든 데이터는 정리됨).
+- Vercel 배포는 아직 안 함. Google OAuth 공급자 미설정(GitHub만 동작). 도메인 미연결.
+
+### 로컬에서 다시 시작
+```bash
+npm install
+npm run dev                 # http://localhost:3000, /admin/login 에서 GitHub 로그인
+npm run check               # lint + typecheck + build
+npm run test:unit           # 마크다운 컴파일러 단위 테스트
+npm run test:e2e            # dev 서버가 떠 있어야 함. 임시 이메일 관리자 계정을 만들었다 지움
+npm run db:verify           # DB 권한 경계 점검
+npm run db:users            # 가입 사용자·관리자 여부
+```
+`.env.local` 필수 키: NEXT_PUBLIC_SITE_URL, NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY, SUPABASE_SECRET_KEY, CRON_SECRET, VIEW_HASH_SECRET, SUPABASE_DB_URL(Session pooler, 마이그레이션·테스트용).
+
+### 다음 할 일 (plan.md §12 순서)
+1. P4 검증 2건 → README 체크 → 커밋.
+2. **관문 G1**: 사진·소개·프로젝트 실제 콘텐츠를 `/admin/site`, `/admin/projects`에서 입력. Lighthouse 모바일 Perf ≥ 90 / a11y ≥ 95 확인.
+3. **P5 방명록**: `/guestbook` 공개 페이지(폼·카드 그리드·커서 페이지네이션·상태 화면), 카드 메뉴 모더레이션, `/admin/guestbook` 콘솔(숨김·삭제·차단), 홈 카드 연결은 이미 `getGuestbookPreview`로 되어 있음. DB 함수(guestbook_create 등)는 0001에 이미 있음. 서버 액션은 `src/app/guestbook/actions.ts`에 작성 예정. tests/db 매트릭스(동시 10건·60초/24h·삭제 후 재작성)는 테스트 프로젝트가 있어야 함.
+4. **P6 마감**: OG 이미지(`opengraph-image.tsx`), 주간 백업 크론, 404/에러 디자인 점검, 번들 점검, Vercel import·환경변수·도메인(Domains 화면 권장값)·Search Console.
+5. 2차: Toolbox·Changelog·Stats, 링크 미리보기, 한/영, 리액션.
+
+### 알아두면 좋은 것
+- 콘텐츠 쓰기는 전부 관리자 JWT + RLS(`is_admin()`)로 간다. secret key는 `/api/views` POST와 `/api/cron`에서만 쓰며 ESLint가 다른 import를 막는다.
+- `"use server"` 파일은 async 함수만 export 가능. 상수·스키마는 `src/lib/admin/*`에 둔다.
+- 로그인 후 목적지는 `?next=`가 아니라 `auth_next` 쿠키로 전달한다(Supabase Redirect URL 정확 일치 때문).
+- 공개 페이지의 데이터 읽기는 `src/lib/supabase/public.ts`(쿠키 없음)만 사용해 ISR 캐시가 세션에 오염되지 않게 한다. 공용 레이아웃은 cookies()를 호출하지 않는다.
+- e2e는 Auth Admin API로 임시 이메일 관리자를 만들고 @supabase/ssr 쿠키 형식(`sb-<ref>-auth-token`, base64-, 3180자 조각)으로 세션을 심는다. 헬퍼: `tests/e2e/helpers/admin-session.ts`.
