@@ -86,6 +86,34 @@ test.describe("관리자: 글 작성·발행·휴지통, 미디어 업로드", (
     );
     await expect(page.getByRole("heading", { name: "E2E 테스트 글" })).toBeVisible();
 
+    // ── 공개 블로그 ──
+    await page.goto("/blog");
+    await expect(page.getByRole("link", { name: /E2E 테스트 글/ }).first()).toBeVisible();
+    await page.goto(`/blog/${slug}`);
+    await expect(page.getByRole("heading", { level: 1, name: "E2E 테스트 글" })).toBeVisible();
+    await expect(page.locator("#article h2#첫-소제목")).toBeVisible();
+    await expect(
+      page.getByRole("navigation", { name: "목차" }).getByRole("link", { name: "첫 소제목" }),
+    ).toHaveAttribute("href", "#첫-소제목");
+    await expect(page.locator("#article .copy-btn").first()).toBeAttached();
+    // 조회수: 첫 방문 POST → 1, 새로고침은 GET(세션 기록) → 여전히 1
+    await expect(page.getByTitle("참고용 열람 횟수")).toHaveText(/1/, { timeout: 15_000 });
+    await page.reload();
+    await expect(page.getByTitle("참고용 열람 횟수")).toHaveText(/^s*1s*$/, { timeout: 15_000 });
+    const rss = await page.request.get("/rss.xml");
+    expect(rss.ok()).toBeTruthy();
+    expect(await rss.text()).toContain(`/blog/${slug}`);
+    const sm = await page.request.get("/sitemap.xml");
+    expect(await sm.text()).toContain(`/blog/${slug}`);
+    // 존재하지 않는 slug → 404, 조회수 API도 404
+    const missing = await page.request.get("/blog/no-such-post-e2e");
+    expect(missing.status()).toBe(404);
+    const badView = await page.request.post("/api/views/no-such-post-e2e");
+    expect(badView.status()).toBe(404);
+    // 같은 방문자의 두 번째 POST는 집계되지 않는다 (일 1회)
+    const again = await page.request.post(`/api/views/${slug}`);
+    expect((await again.json()).counted).toBe(false);
+
     // 휴지통 → anon에게 사라짐
     await page.goto("/admin/posts");
     await row.getByRole("button", { name: "더 보기" }).click();
@@ -95,6 +123,7 @@ test.describe("관리자: 글 작성·발행·휴지통, 미디어 업로드", (
     await expect(page.locator("li", { hasText: "E2E 테스트 글" })).toHaveCount(0);
     const gone = await anon.from("posts").select("id").eq("slug", slug);
     expect(gone.data?.length).toBe(0);
+    expect((await page.request.get(`/blog/${slug}`)).status()).toBe(404);
     await page.goto("/admin/posts?status=trash");
     await expect(
       page.locator("li", { hasText: "E2E 테스트 글" }).getByText("휴지통"),

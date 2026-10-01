@@ -34,7 +34,7 @@ export const siteConfig = {
       title: "더 보기",
       links: [
         { href: "/guestbook", label: "방명록" },
-        { href: "/rss.xml", label: "RSS", enabled: false },
+        { href: "/rss.xml", label: "RSS", external: true },
         { href: "/toolbox", label: "Toolbox", enabled: false },
         { href: "/changelog", label: "Changelog", enabled: false },
         { href: "/stats", label: "Stats", enabled: false },
