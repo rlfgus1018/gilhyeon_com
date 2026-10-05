@@ -17,6 +17,7 @@
     "db:verify": "node --env-file=.env.local scripts/db-verify.mjs",
     "db:users": "node --env-file=.env.local scripts/db-users.mjs",
     "db:grant-admin": "node --env-file=.env.local scripts/db-grant-admin.mjs",
+    "db:e2e-cleanup": "node --env-file=.env.local scripts/db-e2e-cleanup.mjs",
     "test:unit": "node --import tsx --test \"tests/unit/**/*.test.mjs\"",
     "test:e2e": "playwright test"
   },
