@@ -1,5 +1,6 @@
 /**
- * e2e가 중간에 끊겨 남긴 흔적을 지운다: e2e-admin-*@example.com 임시 관리자, slug가 e2e-로 시작하는 글·프로젝트, e2e- 미디어.
+ * e2e가 중간에 끊겨 남긴 흔적을 지운다: e2e-admin-, e2e-user- 로 시작하는 @example.com 임시 계정(방명록 글·작성 이력·차단 포함),
+ * slug가 e2e-로 시작하는 글·프로젝트, e2e- 미디어.
  *   node --env-file=.env.local scripts/db-e2e-cleanup.mjs
  */
 import postgres from "postgres";
@@ -17,9 +18,11 @@ try {
 
   const users = await sql`
     select id, email from auth.users
-    where email like 'e2e-admin-%@example.com'
+    where (email like 'e2e-admin-%@example.com' or email like 'e2e-user-%@example.com')
       and not exists (select 1 from auth.identities i where i.user_id = auth.users.id and i.provider <> 'email')`;
   for (const u of users) {
+    await sql`delete from private.blocked_users where user_id = ${u.id} or blocked_by = ${u.id}`;
+    await sql`delete from private.guestbook_writes where user_id = ${u.id}`;
     const { error } = await admin.auth.admin.deleteUser(u.id);
     console.log(`${error ? "FAIL" : "deleted"}  ${u.email}${error ? `  ${error.message}` : ""}`);
   }

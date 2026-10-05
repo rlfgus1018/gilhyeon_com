@@ -49,16 +49,18 @@ src/
 - [x] P2 마크다운 파이프라인·글 에디터 — unified 컴파일러, CodeMirror 에디터, 미디어 업로드, e2e 3건
 - [x] P3 공개 블로그·조회수 — 목록(태그 필터)·상세(목차·복사·YouTube)·조회수 API·RSS·sitemap
 - [x] P4 홈·About·프로젝트 + 에디터 — 공개 페이지, 사이트/프로젝트 관리자 에디터, e2e 2건, DB 없는 빌드 fallback 확인
-- [ ] P5 방명록·모더레이션
+- [~] P5 방명록·모더레이션 — 공개 방명록(작성·카드 그리드·더 보기), 카드 메뉴, `/admin/guestbook` 콘솔(숨김·삭제·차단), e2e 7건·단위 7건 통과. **DB 매트릭스(`npm run test:db`)와 실제 OAuth 수동 체크는 미실행** (아래 참고)
 - [ ] P6 마감·도메인
 
 ## 이어하기 (2026-10-05 기준)
 
 ### 현재 상태
-- P0~P4 완료·검증됨 (2026-10-05). 검증 내용: `npm run check`, 단위 테스트 6건, e2e 5건(글 3 + 사이트·프로젝트 2), DB 환경변수를 비운 `next build` → `next start`에서 공개 페이지 200·fallback 문구, `/admin`은 `/admin/login?auth=unavailable`로 리다이렉트.
-- 다음은 **관문 G1**(실제 콘텐츠 입력 — 사용자 작업)과 **P5 방명록**.
-- 운영 DB(Supabase)에는 마이그레이션 0001~0003이 적용돼 있고, 관리자 1명(GitHub 로그인 계정)이 `private.admins`에 등록돼 있다. 글·프로젝트·미디어는 아직 없다(e2e가 만든 데이터는 정리됨).
-- Vercel 배포는 아직 안 함. Google OAuth 공급자 미설정(GitHub만 동작). 도메인 미연결.
+- P0~P4 완료·검증됨. **P5 방명록은 코드 완료, 검증 일부 남음** (2026-10-05).
+  - 통과: `npm run check`, 단위 테스트 13건, e2e 12건(개발 서버와 `next start` 양쪽), `/guestbook`·`/admin` 응답 `Cache-Control: private, no-store`(프로덕션 빌드에서 확인).
+  - 남음 1: `tests/db/guestbook-write.test.mjs`(동시 10건·59/60초·하루 5개·위조 INSERT·차단 매트릭스)는 **테스트 전용 Supabase 프로젝트**가 있어야 돈다. 프로젝트를 만들고 마이그레이션 0001~0003을 적용한 뒤 `.env.test.local`에 `TEST_SUPABASE_URL`, `TEST_SUPABASE_PUBLISHABLE_KEY`, `TEST_SUPABASE_SECRET_KEY`, `TEST_SUPABASE_DB_URL`을 넣고 `npm run test:db`. 지금은 건너뜀(skip)으로 끝난다.
+  - 남음 2: 실제 GitHub·Google 로그인은 `tests/manual/oauth.md` 체크리스트로 직접 확인. Google OAuth 공급자는 아직 미설정이라 Google 버튼은 실패 안내로 떨어진다.
+- 운영 DB(Supabase)에는 마이그레이션 0001~0003이 적용돼 있고, 관리자 1명(GitHub 로그인 계정)이 `private.admins`에 등록돼 있다. 글·프로젝트·미디어·방명록 글은 아직 없다(e2e가 만든 데이터는 정리됨).
+- Vercel 배포는 아직 안 함. 도메인 미연결.
 
 ### 로컬에서 다시 시작
 ```bash
@@ -75,7 +77,7 @@ npm run db:e2e-cleanup      # e2e가 중간에 끊겨 남은 임시 관리자(e2
 
 ### 다음 할 일 (plan.md §12 순서)
 1. **관문 G1**: 사진·소개·프로젝트 실제 콘텐츠를 `/admin/site`, `/admin/projects`에서 입력. Lighthouse 모바일 Perf ≥ 90 / a11y ≥ 95 확인.
-2. **P5 방명록**: `/guestbook` 공개 페이지(폼·카드 그리드·커서 페이지네이션·상태 화면), 카드 메뉴 모더레이션, `/admin/guestbook` 콘솔(숨김·삭제·차단), 홈 카드 연결은 이미 `getGuestbookPreview`로 되어 있음. DB 함수(guestbook_create 등)는 0001에 이미 있음. 서버 액션은 `src/app/guestbook/actions.ts`에 작성 예정. tests/db 매트릭스(동시 10건·60초/24h·삭제 후 재작성)는 테스트 프로젝트가 있어야 함.
+2. **P5 마무리**: 테스트 프로젝트에서 `npm run test:db` 통과, `tests/manual/oauth.md` 수동 체크, Google OAuth 공급자 설정 → README 체크 [x].
 3. **P6 마감**: OG 이미지(`opengraph-image.tsx`), 주간 백업 크론, 404/에러 디자인 점검, 번들 점검, Vercel import·환경변수·도메인(Domains 화면 권장값)·Search Console.
 4. 2차: Toolbox·Changelog·Stats, 링크 미리보기, 한/영, 리액션.
 
@@ -86,3 +88,6 @@ npm run db:e2e-cleanup      # e2e가 중간에 끊겨 남은 임시 관리자(e2
 - 공개 페이지의 데이터 읽기는 `src/lib/supabase/public.ts`(쿠키 없음)만 사용해 ISR 캐시가 세션에 오염되지 않게 한다. 공용 레이아웃은 cookies()를 호출하지 않는다.
 - e2e는 Auth Admin API로 임시 이메일 관리자를 만들고 @supabase/ssr 쿠키 형식(`sb-<ref>-auth-token`, base64-, 3180자 조각)으로 세션을 심는다. 헬퍼: `tests/e2e/helpers/admin-session.ts`.
 - e2e가 중간에 죽으면 임시 관리자 계정이 운영 DB에 남을 수 있다(2026-10-01, 10-05에 실제 발생). `npm run db:users`로 확인하고 `npm run db:e2e-cleanup`으로 지운다. 셀렉터는 헤더·내비와 이름이 겹치기 쉬우니 `exact: true`나 role 지정으로 쓴다.
+- 방명록 규칙은 DB가 최종 강제한다(`guestbook_create` RPC: 길이·링크·색상·1분 1개·하루 5개·차단). 서버 액션(`src/app/guestbook/actions.ts`)은 같은 규칙을 먼저 검사해 안내 문구를 주고, 욕설 필터(`src/lib/guestbook/moderation.ts`)만 서버 액션에서 추가로 건다. 오류 코드 → 문구는 `src/lib/guestbook/errors.ts`.
+- 방명록 목록은 로그인 여부로 읽는 곳이 다르다: 비로그인은 `guestbook_public` 뷰, 로그인은 `guestbook` 테이블(RLS). `user_id`는 브라우저로 내려보내지 않고 `mine` 여부만 계산한다. 숨김 글은 작성자 본인에게도 보이지 않고 관리자만 본다.
+- `next dev`는 Cache-Control을 덮어쓴다. no-store 확인은 `next build && next start` 후 `E2E_PROD=1 npm run test:e2e`로 한다.

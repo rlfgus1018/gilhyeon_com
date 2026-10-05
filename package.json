@@ -13,7 +13,7 @@
     "check": "npm run lint && npm run typecheck && npm run build",
     "db:migrate": "node --env-file=.env.local scripts/db-migrate.mjs",
     "db:migrate:dry": "node --env-file=.env.local scripts/db-migrate.mjs --dry-run",
-    "test:db": "node --env-file-if-exists=.env.test.local --test tests/db/",
+    "test:db": "node --env-file-if-exists=.env.test.local --test \"tests/db/**/*.test.mjs\"",
     "db:verify": "node --env-file=.env.local scripts/db-verify.mjs",
     "db:users": "node --env-file=.env.local scripts/db-users.mjs",
     "db:grant-admin": "node --env-file=.env.local scripts/db-grant-admin.mjs",

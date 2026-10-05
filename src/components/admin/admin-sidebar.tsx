@@ -20,7 +20,7 @@ const ITEMS = [
   { href: "/admin/projects", label: "프로젝트", icon: FolderKanbanIcon, ready: true },
   { href: "/admin/site", label: "사이트", icon: SettingsIcon, ready: true },
   { href: "/admin/media", label: "미디어", icon: ImageIcon, ready: true },
-  { href: "/admin/guestbook", label: "방명록", icon: MessageSquareIcon, ready: false },
+  { href: "/admin/guestbook", label: "방명록", icon: MessageSquareIcon, ready: true },
   { href: "/admin/trash", label: "휴지통", icon: Trash2Icon, ready: false },
 ];
 

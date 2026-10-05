@@ -47,25 +47,35 @@ export type TestAdmin = {
 };
 
 /** 임시 이메일/비밀번호 관리자: Auth Admin API로 생성 → private.admins 등록 → 비밀번호 로그인으로 세션 획득 */
-export async function createTestAdmin(baseURL: string): Promise<TestAdmin> {
+export function createTestAdmin(baseURL: string): Promise<TestAdmin> {
+  return createTestUser(baseURL, { admin: true });
+}
+
+/** 임시 사용자. admin=false면 일반 방문자(방명록 테스트용). 끝나면 cleanup()으로 흔적까지 지운다. */
+export async function createTestUser(
+  baseURL: string,
+  opts: { admin: boolean },
+): Promise<TestAdmin> {
   const stamp = `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`;
-  const email = `e2e-admin-${stamp}@example.com`;
+  const email = `e2e-${opts.admin ? "admin" : "user"}-${stamp}@example.com`;
   const password = `E2e!${stamp}${Math.random().toString(36).slice(2)}`;
   const admin = adminClient();
   const created = await admin.auth.admin.createUser({
     email,
     password,
     email_confirm: true,
-    user_metadata: { full_name: "E2E 관리자" },
+    user_metadata: { full_name: opts.admin ? "E2E 관리자" : "E2E 방문자" },
   });
   if (created.error) throw created.error;
   const id = created.data.user.id;
 
-  const sql = postgres(DB_URL, { max: 1, prepare: false, onnotice: () => {} });
-  try {
-    await sql`insert into private.admins (user_id, note) values (${id}, 'e2e') on conflict do nothing`;
-  } finally {
-    await sql.end();
+  if (opts.admin) {
+    const sql = postgres(DB_URL, { max: 1, prepare: false, onnotice: () => {} });
+    try {
+      await sql`insert into private.admins (user_id, note) values (${id}, 'e2e') on conflict do nothing`;
+    } finally {
+      await sql.end();
+    }
   }
 
   const signIn = await anonClient().auth.signInWithPassword({ email, password });
@@ -81,6 +91,9 @@ export async function createTestAdmin(baseURL: string): Promise<TestAdmin> {
       try {
         await db`delete from public.posts where slug like 'e2e-%'`;
         await db`delete from public.media where alt_default like 'e2e-%'`;
+        // 방명록 흔적: 글은 사용자 삭제 시 cascade, FK 없는 이력·차단 행은 직접 지운다
+        await db`delete from private.blocked_users where user_id = ${id} or blocked_by = ${id}`;
+        await db`delete from private.guestbook_writes where user_id = ${id}`;
       } finally {
         await db.end();
       }

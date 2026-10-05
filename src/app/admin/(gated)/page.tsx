@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireAdminPage } from "@/lib/admin/guard";
 import { RefreshCachesButton } from "@/components/admin/refresh-caches-button";
 
@@ -14,10 +15,25 @@ type Status = {
   last_cron: { job: string; ok: boolean; ran_at: string } | null;
 };
 
+type RecentEntry = {
+  id: string;
+  author_name: string;
+  message: string;
+  is_hidden: boolean;
+  created_at: string;
+};
+
 export default async function AdminDashboardPage() {
   const { supabase } = await requireAdminPage();
   const { data, error } = await supabase.rpc("admin_status");
   const status = (error ? null : data) as Status | null;
+  // 최근 방명록 5개 (관리자 JWT → 숨김 포함)
+  const recentRes = await supabase
+    .from("guestbook")
+    .select("id,author_name,message,is_hidden,created_at")
+    .order("created_at", { ascending: false })
+    .limit(5);
+  const recent = (recentRes.data ?? []) as RecentEntry[];
 
   const cards = status
     ? [
@@ -73,6 +89,35 @@ export default async function AdminDashboardPage() {
           ))}
         </div>
       )}
+
+      <section className="card-surface p-5 text-sm">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="font-semibold">최근 방명록</h2>
+          <Link href="/admin/guestbook" className="text-brand text-xs font-medium hover:underline">
+            모두 관리
+          </Link>
+        </div>
+        {recentRes.error ? (
+          <p className="text-muted-foreground mt-1">방명록을 불러오지 못했어요.</p>
+        ) : recent.length === 0 ? (
+          <p className="text-muted-foreground mt-1">아직 방명록 글이 없어요.</p>
+        ) : (
+          <ul className="mt-2 divide-y">
+            {recent.map((g) => (
+              <li key={g.id} className="flex items-baseline gap-2 py-2">
+                <span className="shrink-0 font-medium">{g.author_name}</span>
+                <span className="text-muted-foreground min-w-0 flex-1 truncate">{g.message}</span>
+                {g.is_hidden && (
+                  <span className="text-muted-foreground shrink-0 text-xs">숨김</span>
+                )}
+                <time dateTime={g.created_at} className="text-muted-foreground shrink-0 text-xs">
+                  {new Date(g.created_at).toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })}
+                </time>
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
 
       <section className="card-surface p-5 text-sm">
         <h2 className="font-semibold">마지막 크론 실행</h2>
