@@ -49,7 +49,7 @@ src/
 - [x] P2 마크다운 파이프라인·글 에디터 — unified 컴파일러, CodeMirror 에디터, 미디어 업로드, e2e 3건
 - [x] P3 공개 블로그·조회수 — 목록(태그 필터)·상세(목차·복사·YouTube)·조회수 API·RSS·sitemap
 - [x] P4 홈·About·프로젝트 + 에디터 — 공개 페이지, 사이트/프로젝트 관리자 에디터, e2e 2건, DB 없는 빌드 fallback 확인
-- [~] P5 방명록·모더레이션 — 공개 방명록(작성·카드 그리드·더 보기), 카드 메뉴, `/admin/guestbook` 콘솔(숨김·삭제·차단), e2e 7건·단위 7건 통과. **DB 매트릭스(`npm run test:db`)와 실제 OAuth 수동 체크는 미실행** (아래 참고)
+- [~] P5 방명록·모더레이션 — 공개 방명록(작성·카드 그리드·더 보기), 카드 메뉴, `/admin/guestbook` 콘솔(숨김·삭제·차단), e2e 7건·단위 7건·DB 매트릭스 16건 통과. **실제 OAuth 수동 체크만 남음** (아래 참고)
 - [ ] P6 마감·도메인
 
 ## 이어하기 (2026-10-05 기준)
@@ -57,8 +57,8 @@ src/
 ### 현재 상태
 - P0~P4 완료·검증됨. **P5 방명록은 코드 완료, 검증 일부 남음** (2026-10-05).
   - 통과: `npm run check`, 단위 테스트 13건, e2e 12건(개발 서버와 `next start` 양쪽), `/guestbook`·`/admin` 응답 `Cache-Control: private, no-store`(프로덕션 빌드에서 확인).
-  - 남음 1: `tests/db/guestbook-write.test.mjs`(동시 10건·59/60초·하루 5개·위조 INSERT·차단 매트릭스)는 **테스트 전용 Supabase 프로젝트**가 있어야 돈다. 프로젝트를 만들고 마이그레이션 0001~0003을 적용한 뒤 `.env.test.local`에 `TEST_SUPABASE_URL`, `TEST_SUPABASE_PUBLISHABLE_KEY`, `TEST_SUPABASE_SECRET_KEY`, `TEST_SUPABASE_DB_URL`을 넣고 `npm run test:db`. 지금은 건너뜀(skip)으로 끝난다.
-  - 남음 2: 실제 GitHub·Google 로그인은 `tests/manual/oauth.md` 체크리스트로 직접 확인. Google OAuth 공급자는 아직 미설정이라 Google 버튼은 실패 안내로 떨어진다.
+  - DB 매트릭스(`tests/db`, 16건: 동시 10건 중 1건·59/60초·하루 5개·위조 INSERT·차단·RLS)는 2026-10-05에 **운영 DB에 1회 실행해 통과**했다. 무료 플랜에서 테스트 프로젝트를 더 만들 수 없어서, 배포 전이라 실제 데이터가 없는 시점에 한 번만 돌린 것이다(`.env.local` 값을 `TEST_SUPABASE_*` 이름으로 넘겨 실행, 임시 계정·글·이력은 모두 삭제 확인). **배포 후에는 운영 DB에 돌리지 않는다.** 스키마를 바꾸게 되면 로컬 Supabase(Docker)나 테스트 프로젝트에서 `.env.test.local`로 실행한다.
+  - 남음: 실제 GitHub·Google 로그인은 `tests/manual/oauth.md` 체크리스트로 직접 확인. Google OAuth 공급자는 아직 미설정이라 Google 버튼은 실패 안내로 떨어진다.
 - 운영 DB(Supabase)에는 마이그레이션 0001~0003이 적용돼 있고, 관리자 1명(GitHub 로그인 계정)이 `private.admins`에 등록돼 있다. 글·프로젝트·미디어·방명록 글은 아직 없다(e2e가 만든 데이터는 정리됨).
 - Vercel 배포는 아직 안 함. 도메인 미연결.
 
@@ -77,7 +77,7 @@ npm run db:e2e-cleanup      # e2e가 중간에 끊겨 남은 임시 관리자(e2
 
 ### 다음 할 일 (plan.md §12 순서)
 1. **관문 G1**: 사진·소개·프로젝트 실제 콘텐츠를 `/admin/site`, `/admin/projects`에서 입력. Lighthouse 모바일 Perf ≥ 90 / a11y ≥ 95 확인.
-2. **P5 마무리**: 테스트 프로젝트에서 `npm run test:db` 통과, `tests/manual/oauth.md` 수동 체크, Google OAuth 공급자 설정 → README 체크 [x].
+2. **P5 마무리**: Google OAuth 공급자 설정, `tests/manual/oauth.md` 수동 체크 → README 체크 [x].
 3. **P6 마감**: OG 이미지(`opengraph-image.tsx`), 주간 백업 크론, 404/에러 디자인 점검, 번들 점검, Vercel import·환경변수·도메인(Domains 화면 권장값)·Search Console.
 4. 2차: Toolbox·Changelog·Stats, 링크 미리보기, 한/영, 리액션.
 
