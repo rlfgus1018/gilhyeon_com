@@ -59,7 +59,14 @@ export function SiteFooter() {
           <p>
             © {year} {siteConfig.name}. All rights reserved.
           </p>
-          <p>Next.js와 Supabase로 만들었습니다.</p>
+          <nav aria-label="법적 고지" className="flex items-center gap-4">
+            {siteConfig.legalLinks.map((l) => (
+              <Link key={l.href} href={l.href} className="hover:text-foreground transition-colors">
+                {l.label}
+              </Link>
+            ))}
+            <span>Next.js와 Supabase로 만들었습니다.</span>
+          </nav>
         </Container>
       </div>
     </footer>

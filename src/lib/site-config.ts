@@ -48,6 +48,11 @@ export const siteConfig = {
       ],
     },
   ] as FooterGroup[],
+  /** 푸터 하단 법적 고지 링크 (Google OAuth 앱 게시 요건: 공개 개인정보처리방침·약관) */
+  legalLinks: [
+    { href: "/privacy", label: "개인정보처리방침" },
+    { href: "/terms", label: "서비스 약관" },
+  ] as NavItem[],
   /** DB(site_content)를 읽을 수 없을 때 쓰는 기본 문구 (plan.md §3.1 장애 시) */
   fallback: {
     heroGreeting: "안녕하세요, 이길현입니다 👋",

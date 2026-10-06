@@ -13,13 +13,22 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   ]);
   const posts = postsRes.ok ? postsRes.data : [];
   const projects = projectsRes.ok ? projectsRes.data.filter((p) => p.has_body) : [];
-  const statics: MetadataRoute.Sitemap = ["/", "/about", "/blog", "/projects", "/guestbook"].map(
-    (p) => ({
+  const statics: MetadataRoute.Sitemap = [
+    "/",
+    "/about",
+    "/blog",
+    "/projects",
+    "/guestbook",
+    "/privacy",
+    "/terms",
+  ].map((p) => {
+    const legal = p === "/privacy" || p === "/terms";
+    return {
       url: `${origin}${p}`,
-      changeFrequency: p === "/" || p === "/blog" ? "daily" : "weekly",
-      priority: p === "/" ? 1 : 0.7,
-    }),
-  );
+      changeFrequency: p === "/" || p === "/blog" ? "daily" : legal ? "yearly" : "weekly",
+      priority: p === "/" ? 1 : legal ? 0.3 : 0.7,
+    };
+  });
   return [
     ...statics,
     ...posts.map((p) => ({
