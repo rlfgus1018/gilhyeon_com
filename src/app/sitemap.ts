@@ -1,13 +1,18 @@
 import type { MetadataRoute } from "next";
 import { getPublishedPosts } from "@/lib/content/posts";
+import { getPublishedProjects } from "@/lib/content/projects";
 import { getCanonicalOrigin } from "@/lib/site-url";
 
 export const revalidate = 3600;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = getCanonicalOrigin();
-  const r = await getPublishedPosts(1000);
-  const posts = r.ok ? r.data : [];
+  const [postsRes, projectsRes] = await Promise.all([
+    getPublishedPosts(1000),
+    getPublishedProjects(500),
+  ]);
+  const posts = postsRes.ok ? postsRes.data : [];
+  const projects = projectsRes.ok ? projectsRes.data.filter((p) => p.has_body) : [];
   const statics: MetadataRoute.Sitemap = ["/", "/about", "/blog", "/projects", "/guestbook"].map(
     (p) => ({
       url: `${origin}${p}`,
@@ -22,6 +27,11 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       lastModified: p.published_at ?? undefined,
       changeFrequency: "monthly" as const,
       priority: 0.6,
+    })),
+    ...projects.map((p) => ({
+      url: `${origin}/projects/${p.slug}`,
+      changeFrequency: "monthly" as const,
+      priority: 0.5,
     })),
   ];
 }

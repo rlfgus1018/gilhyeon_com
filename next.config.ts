@@ -13,6 +13,9 @@ const supabaseHost = (() => {
 // 세션에 따라 달라지는 화면은 브라우저·CDN 어디에도 저장하지 않는다 (plan.md §2.1)
 const noStore = [{ key: "Cache-Control", value: "private, no-store" }];
 
+// OG 이미지(next/og)가 런타임에 읽는 Pretendard OTF — 서버 번들 트레이스에 포함시킨다 (src/lib/og/card.tsx)
+const ogFonts = ["node_modules/pretendard/dist/public/static/Pretendard-{Regular,Bold}.otf"];
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
@@ -28,6 +31,11 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "avatars.githubusercontent.com" },
       { protocol: "https", hostname: "*.googleusercontent.com" },
     ],
+  },
+  outputFileTracingIncludes: {
+    "/opengraph-image": ogFonts,
+    "/blog/*/opengraph-image": ogFonts,
+    "/projects/*/opengraph-image": ogFonts,
   },
 };
 

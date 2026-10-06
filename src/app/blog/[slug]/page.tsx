@@ -38,17 +38,7 @@ export async function generateMetadata({ params }: PageProps<"/blog/[slug]">): P
       modifiedTime: p.updated_at,
       tags: p.tags,
       authors: [siteConfig.name],
-      ...(p.cover?.url
-        ? {
-            images: [
-              {
-                url: p.cover.url,
-                width: p.cover.width ?? undefined,
-                height: p.cover.height ?? undefined,
-              },
-            ],
-          }
-        : {}),
+      // 이미지는 같은 세그먼트의 opengraph-image.tsx(파일 메타데이터가 우선)가 커버를 넣어 그린다
     },
   };
 }

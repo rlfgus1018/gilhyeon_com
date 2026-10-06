@@ -51,6 +51,30 @@ OAuth consent screen: External, Publishing status **In production**, scope는 �
 Free 플랜은 1주 미사용 시 일시정지된다. 크론 keepalive는 보조 수단일 뿐이다.
 Dashboard에서 프로젝트를 **Restore**한 뒤 `/admin`의 "캐시 새로고침"(P4 이후) 또는 Vercel 재배포로 ISR 캐시를 갱신한다.
 
-## 6. 백업
+## 6. 백업·복원
 
-자동 백업 없음. P6에서 주 1회 JSON 백업(크론 → `backups` 버킷)을 추가한다. 방명록은 월 1회 CSV 내보내기.
+### 자동 백업 (P6)
+
+- `/api/cron/daily`(Vercel Cron, 매일 03:00 UTC)가 `posts`·`projects`·`site_content`·`media` 전체 행(초안·휴지통 포함)을 JSON 하나로 직렬화해
+  비공개 버킷 **`backups`** 에 `content-<ISO 주>.json`(예: `content-2026-W41.json`)으로 저장한다.
+- 매일 실행되지만 파일명이 주 단위라 같은 주에는 덮어쓴다(멱등). 최근 **8주**만 남기고 오래된 파일은 삭제한다.
+- 결과는 `private.cron_runs`(job = `backup`)에 기록되고 `/admin` 대시보드 "마지막 콘텐츠 백업"에 보인다.
+- 이미지 원본은 Storage `media` 버킷 자체가 저장소다. 방명록은 월 1회 Dashboard → Table Editor → `guestbook` → Export CSV.
+- 로컬에서 수동 실행: `next start` 후 `Authorization: Bearer <CRON_SECRET>` 헤더로 `GET /api/cron/daily`.
+
+### 복원
+
+1. Dashboard → Storage → `backups` 에서 원하는 주의 JSON을 내려받는다.
+2. 복원할 행을 골라 SQL Editor에서 `insert ... on conflict (id) do update` 로 넣는다. 예(글 1건):
+   ```sql
+   insert into public.posts
+   select * from jsonb_populate_record(null::public.posts, '<JSON 배열의 원소 하나>'::jsonb)
+   on conflict (id) do update set
+     title = excluded.title, slug = excluded.slug, description = excluded.description,
+     content_md = excluded.content_md, content_html = excluded.content_html, toc = excluded.toc,
+     tags = excluded.tags, status = excluded.status, published_at = excluded.published_at,
+     cover_media_id = excluded.cover_media_id, deleted_at = excluded.deleted_at, updated_at = now();
+   ```
+   `media` → `posts`/`projects` → `site_content` 순서로 넣어야 외래키가 맞는다.
+3. `/admin` → "캐시 새로고침"으로 ISR 캐시를 갱신한다.
+4. 2차에 `/admin` 가져오기 UI(plan.md P7~)를 붙이기 전까지는 이 절차가 복원 수단이다.

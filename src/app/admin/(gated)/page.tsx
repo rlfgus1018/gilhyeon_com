@@ -13,6 +13,12 @@ type Status = {
   guestbook_hidden: number;
   blocked_users: number;
   last_cron: { job: string; ok: boolean; ran_at: string } | null;
+  last_backup: {
+    job: string;
+    ok: boolean;
+    ran_at: string;
+    details: { file?: string; counts?: Record<string, number>; error?: string } | null;
+  } | null;
 };
 
 type RecentEntry = {
@@ -128,6 +134,36 @@ export default async function AdminDashboardPage() {
           </p>
         ) : (
           <p className="text-muted-foreground mt-1">아직 실행 기록이 없어요.</p>
+        )}
+      </section>
+
+      <section className="card-surface p-5 text-sm">
+        <h2 className="font-semibold">마지막 콘텐츠 백업</h2>
+        {status?.last_backup ? (
+          <>
+            <p className="text-muted-foreground mt-1">
+              {status.last_backup.ok ? "성공" : "실패"} ·{" "}
+              {new Date(status.last_backup.ran_at).toLocaleString("ko-KR", {
+                timeZone: "Asia/Seoul",
+              })}
+              {status.last_backup.details?.file && ` · ${status.last_backup.details.file}`}
+            </p>
+            {status.last_backup.ok && status.last_backup.details?.counts ? (
+              <p className="text-muted-foreground mt-1 text-xs">
+                {Object.entries(status.last_backup.details.counts)
+                  .map(([k, v]) => `${k} ${v}`)
+                  .join(" · ")}
+              </p>
+            ) : status.last_backup.details?.error ? (
+              <p className="text-coral mt-1 text-xs">{status.last_backup.details.error}</p>
+            ) : null}
+            <p className="text-muted-foreground mt-2 text-xs">
+              매일 크론이 그 주의 파일을 덮어쓰고 최근 8주만 남겨요. 파일은 Supabase Storage의
+              비공개 backups 버킷에 있어요(복원 절차는 supabase/README.md).
+            </p>
+          </>
+        ) : (
+          <p className="text-muted-foreground mt-1">아직 백업 기록이 없어요.</p>
         )}
       </section>
     </div>

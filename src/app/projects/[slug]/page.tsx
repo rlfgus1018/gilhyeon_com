@@ -9,6 +9,7 @@ import { ArticleIslands } from "@/components/blog/article-islands";
 import { TableOfContents } from "@/components/blog/table-of-contents";
 import { GitHubIcon } from "@/components/icons";
 import { getProjectBySlug, getPublishedProjects } from "@/lib/content/projects";
+import { siteConfig } from "@/lib/site-config";
 
 export const revalidate = 3600;
 export const dynamicParams = true;
@@ -29,11 +30,11 @@ export async function generateMetadata({
     title: r.data.title,
     description: r.data.summary || undefined,
     alternates: { canonical: `/projects/${slug}` },
+    // 이미지는 같은 세그먼트의 opengraph-image.tsx(파일 메타데이터가 우선)가 썸네일을 넣어 그린다
     openGraph: {
       type: "article",
       title: r.data.title,
       description: r.data.summary || undefined,
-      ...(r.data.thumbnail?.url ? { images: [{ url: r.data.thumbnail.url }] } : {}),
     },
   };
 }
@@ -44,8 +45,24 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
   if (!r.ok && r.reason === "error") throw new Error("DB_UNAVAILABLE");
   if (!r.ok || !r.data || !r.data.content_html.trim()) notFound();
   const p = r.data;
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": p.links.github ? "SoftwareSourceCode" : "CreativeWork",
+    name: p.title,
+    description: p.summary,
+    url: `${siteConfig.url}/projects/${p.slug}`,
+    dateModified: p.updated_at,
+    author: { "@type": "Person", name: siteConfig.name, url: siteConfig.url },
+    keywords: p.tech.join(", "),
+    ...(p.links.github ? { codeRepository: p.links.github } : {}),
+    ...(p.thumbnail?.url ? { image: p.thumbnail.url } : {}),
+  };
   return (
     <Container className="py-12 sm:py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-12">
         <article id="article" className="min-w-0">
           <header className="mb-10 space-y-4">

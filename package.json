@@ -10,7 +10,7 @@
     "typecheck": "next typegen && tsc --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "check": "npm run lint && npm run typecheck && npm run build",
+    "check": "npm run lint && npm run typecheck && npm run build && npm run check:bundle",
     "db:migrate": "node --env-file=.env.local scripts/db-migrate.mjs",
     "db:migrate:dry": "node --env-file=.env.local scripts/db-migrate.mjs --dry-run",
     "test:db": "node --env-file-if-exists=.env.test.local --test \"tests/db/**/*.test.mjs\"",
@@ -19,7 +19,9 @@
     "db:grant-admin": "node --env-file=.env.local scripts/db-grant-admin.mjs",
     "db:e2e-cleanup": "node --env-file=.env.local scripts/db-e2e-cleanup.mjs",
     "test:unit": "node --import tsx --test \"tests/unit/**/*.test.mjs\"",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "check:bundle": "node scripts/check-bundle.mjs",
+    "db:backups": "node --env-file=.env.local scripts/db-backups.mjs"
   },
   "dependencies": {
     "@base-ui/react": "^1.8.0",

@@ -5,7 +5,11 @@ export function revalidatePost(slug: string, previousSlug?: string) {
   revalidatePath("/");
   revalidatePath("/blog");
   revalidatePath(`/blog/${slug}`);
-  if (previousSlug && previousSlug !== slug) revalidatePath(`/blog/${previousSlug}`);
+  revalidatePath(`/blog/${slug}/opengraph-image`);
+  if (previousSlug && previousSlug !== slug) {
+    revalidatePath(`/blog/${previousSlug}`);
+    revalidatePath(`/blog/${previousSlug}/opengraph-image`);
+  }
   revalidatePath("/rss.xml");
   revalidatePath("/sitemap.xml");
 }
@@ -14,7 +18,11 @@ export function revalidateProject(slug: string, previousSlug?: string) {
   revalidatePath("/");
   revalidatePath("/projects");
   revalidatePath(`/projects/${slug}`);
-  if (previousSlug && previousSlug !== slug) revalidatePath(`/projects/${previousSlug}`);
+  revalidatePath(`/projects/${slug}/opengraph-image`);
+  if (previousSlug && previousSlug !== slug) {
+    revalidatePath(`/projects/${previousSlug}`);
+    revalidatePath(`/projects/${previousSlug}/opengraph-image`);
+  }
   revalidatePath("/sitemap.xml");
 }
 
