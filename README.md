@@ -61,7 +61,7 @@ src/
   - P6(2026-10-06): `npm run check`(lint·typecheck·build·번들 점검) 통과, 단위 16건, e2e `seo.spec.ts` 6건(`next start` 기준) 통과. 크론을 로컬에서 1회 호출해 운영 Storage `backups/content-2026-W41.json`이 생성된 것을 `npm run db:backups`로 확인했다.
   - DB 매트릭스(`tests/db`, 16건)는 2026-10-05에 **운영 DB에 1회 실행해 통과**했다(배포 전 빈 DB). **배포 후에는 운영 DB에 돌리지 않는다.** 스키마를 바꾸면 로컬 Supabase(Docker)나 테스트 프로젝트에서 `.env.test.local`로 실행한다.
 - 운영 DB(Supabase)에는 마이그레이션 **0001~0004** 적용, 관리자 1명(GitHub 로그인 계정). 글·프로젝트·미디어·방명록 글은 아직 없다. `backups` 버킷에 주간 백업 1개.
-- **Vercel 배포·도메인 연결 완료** (P0 때 import, master push마다 자동 배포). `https://gilhyeon.com`이 Cloudflare DNS(프록시) → Vercel로 응답하며 2026-10-06 확인: `/opengraph-image`·`/sitemap.xml`·`/privacy`·`/terms` 최신 커밋 반영, robots 색인 허용, `/guestbook`·`/admin` no-store, 크론 401 보호. `www.gilhyeon.com`은 리다이렉트가 아니라 같은 내용을 200으로 내보낸다(canonical로 보완, Vercel Domains에서 Redirect 설정 권장).
+- **Vercel 배포·도메인 연결 완료** (P0 때 import, master push마다 자동 배포). `https://gilhyeon.com`이 Cloudflare DNS(프록시) → Vercel로 응답하며 2026-10-06 확인: `/opengraph-image`·`/sitemap.xml`·`/privacy`·`/terms` 최신 커밋 반영, robots 색인 허용, `/guestbook`·`/admin` no-store, 크론 401 보호. `www.gilhyeon.com` → `gilhyeon.com` 307 리다이렉트 확인(10-06).
 - Google OAuth 공급자 설정·로컬 로그인 확인 완료(2026-10-06). 운영 도메인에서 `tests/manual/oauth.md` 나머지 항목 재확인 필요.
 
 ### 로컬에서 다시 시작
@@ -84,7 +84,7 @@ npm run db:e2e-cleanup      # e2e가 중간에 끊겨 남은 임시 관리자(e2
 
 1. **P5 마무리**: 운영 도메인(`https://gilhyeon.com/guestbook`)에서 `tests/manual/oauth.md` 나머지 항목 체크 → 위 체크박스 [x].
 2. **관문 G1**: 사진·소개·프로젝트 실제 콘텐츠를 `/admin/site`, `/admin/projects`에서 입력.
-3. **P6 남은 확인**: `private.cron_runs`에 Vercel 크론 실행 기록이 2026-10-01 이후 없다 → Vercel → Settings → Cron Jobs에 `/api/cron/daily`가 등록돼 있는지, 환경변수 `CRON_SECRET`이 Production에 있는지 확인. 다음날 `/admin` 대시보드 "마지막 크론 실행"·"마지막 콘텐츠 백업"이 채워지면 해결 → Vercel Domains에서 `www` → `gilhyeon.com` Redirect 설정 → Lighthouse 모바일 Perf ≥ 90 / a11y ≥ 95 → Search Console 등록(sitemap 제출).
+3. **P6 남은 확인**: `private.cron_runs`에 Vercel 크론 실행 기록이 2026-10-01 이후 없다 → Vercel → Settings → Cron Jobs에 `/api/cron/daily`가 등록돼 있는지, 환경변수 `CRON_SECRET`이 Production에 있는지 확인. 다음날 `/admin` 대시보드 "마지막 크론 실행"·"마지막 콘텐츠 백업"이 채워지면 해결 → Lighthouse 모바일 Perf ≥ 90 / a11y ≥ 95 → Search Console 등록(sitemap 제출).
 4. 2차(P7~): Toolbox·Changelog·Stats, 링크 미리보기, 한/영, 리액션, 백업 가져오기 UI.
 
 ### 알아두면 좋은 것
