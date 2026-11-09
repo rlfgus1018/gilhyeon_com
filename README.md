@@ -52,15 +52,18 @@ src/
 - [~] P5 방명록·모더레이션 — 공개 방명록(작성·카드 그리드·더 보기), 카드 메뉴, `/admin/guestbook` 콘솔(숨김·삭제·차단), e2e 7건·단위 7건·DB 매트릭스 16건 통과. **실제 OAuth 수동 체크만 남음** (아래 참고)
 - [~] P6 마감·도메인 — OG 이미지(기본·글·프로젝트, Pretendard), 주간 백업 크론(마이그레이션 0004, 대시보드 표시), 번들 점검 스크립트, 404/에러/global-error, JSON-LD(홈·프로젝트), sitemap에 프로젝트 추가, e2e 6건·단위 3건. **Vercel 배포·도메인·Search Console은 사용자 작업** (아래 참고)
 
-## 이어하기 (2026-10-06 기준)
+## 이어하기 (2026-11-09 기준)
 
 ### 현재 상태
 
 - P0~P4 완료·검증됨. P5·P6은 **코드 완료, 사용자 계정 작업만 남음**.
-  - P5: 실제 GitHub·Google 로그인은 `tests/manual/oauth.md` 체크리스트로 직접 확인. Google OAuth 공급자는 아직 미설정이라 Google 버튼은 실패 안내로 떨어진다.
+  - P5: 실제 GitHub·Google 로그인은 `tests/manual/oauth.md` 체크리스트로 직접 확인.
   - P6(2026-10-06): `npm run check`(lint·typecheck·build·번들 점검) 통과, 단위 16건, e2e `seo.spec.ts` 6건(`next start` 기준) 통과. 크론을 로컬에서 1회 호출해 운영 Storage `backups/content-2026-W41.json`이 생성된 것을 `npm run db:backups`로 확인했다.
   - DB 매트릭스(`tests/db`, 16건)는 2026-10-05에 **운영 DB에 1회 실행해 통과**했다(배포 전 빈 DB). **배포 후에는 운영 DB에 돌리지 않는다.** 스키마를 바꾸면 로컬 Supabase(Docker)나 테스트 프로젝트에서 `.env.test.local`로 실행한다.
-- 운영 DB(Supabase)에는 마이그레이션 **0001~0004** 적용, 관리자 1명(GitHub 로그인 계정). 글·프로젝트·미디어·방명록 글은 아직 없다. `backups` 버킷에 주간 백업 1개.
+- **2026-11-09 장애 복구**: 운영 빌드에 Supabase 환경변수가 없었고 프로젝트도 일시정지 상태라 DB 기반 섹션이 전부 실패했다. 프로젝트를 복원하고(데이터 유지) Vercel Production에 환경변수를 넣은 뒤 재배포했다. 함수 리전은 DB와 같은 서울로 옮겼다(`vercel.json`의 `icn1`).
+- Vercel Production 환경변수: `NEXT_PUBLIC_SITE_URL`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, `SUPABASE_SECRET_KEY`, `CRON_SECRET`, `VIEW_HASH_SECRET`. `SUPABASE_DB_URL`은 스크립트·테스트 전용이라 운영에 넣지 않는다.
+- 운영 DB(Supabase)에는 마이그레이션 **0001~0004** 적용, 관리자 1명(GitHub 로그인 계정). 글·프로젝트·미디어는 아직 없고 방명록 글 1건이 있다. `backups` 버킷에 주간 백업 2개(W41, W46).
+- Supabase 무료 플랜은 활동이 없으면 프로젝트를 일시정지할 수 있다. 일일 크론의 keepalive가 이를 막는 역할을 하므로 `/admin`의 "마지막 크론 실행"을 가끔 확인한다.
 - **Vercel 배포·도메인 연결 완료** (P0 때 import, master push마다 자동 배포). `https://gilhyeon.com`이 Cloudflare DNS(프록시) → Vercel로 응답하며 2026-10-06 확인: `/opengraph-image`·`/sitemap.xml`·`/privacy`·`/terms` 최신 커밋 반영, robots 색인 허용, `/guestbook`·`/admin` no-store, 크론 401 보호. `www.gilhyeon.com` → `gilhyeon.com` 307 리다이렉트 확인(10-06).
 - Google OAuth 공급자 설정·로컬 로그인 확인 완료(2026-10-06). 운영 도메인에서 `tests/manual/oauth.md` 나머지 항목 재확인 필요.
 
@@ -84,7 +87,7 @@ npm run db:e2e-cleanup      # e2e가 중간에 끊겨 남은 임시 관리자(e2
 
 1. **P5 마무리**: 운영 도메인(`https://gilhyeon.com/guestbook`)에서 `tests/manual/oauth.md` 나머지 항목 체크 → 위 체크박스 [x].
 2. **관문 G1**: 사진·소개·프로젝트 실제 콘텐츠를 `/admin/site`, `/admin/projects`에서 입력.
-3. **P6 남은 확인**: `private.cron_runs`에 Vercel 크론 실행 기록이 2026-10-01 이후 없다 → Vercel → Settings → Cron Jobs에 `/api/cron/daily`가 등록돼 있는지, 환경변수 `CRON_SECRET`이 Production에 있는지 확인. 다음날 `/admin` 대시보드 "마지막 크론 실행"·"마지막 콘텐츠 백업"이 채워지면 해결 → Lighthouse 모바일 Perf ≥ 90 / a11y ≥ 95 → Search Console 등록(sitemap 제출).
+3. **P6 남은 확인**: 크론은 등록돼 있고 2026-11-09 수동 실행(`vercel crons run`)으로 정리·백업 성공을 확인했다. 예약 실행(매일 03:00 UTC)이 `private.cron_runs`에 쌓이는지 다음날 확인 → Lighthouse 모바일 Perf ≥ 90 / a11y ≥ 95 → Search Console 등록(sitemap 제출).
 4. 2차(P7~): Toolbox·Changelog·Stats, 링크 미리보기, 한/영, 리액션, 백업 가져오기 UI.
 
 ### 알아두면 좋은 것
