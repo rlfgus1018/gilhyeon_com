@@ -35,7 +35,7 @@ export default function GlobalError({
             style={{
               marginTop: 24,
               padding: "10px 20px",
-              borderRadius: 10,
+              borderRadius: 8,
               border: 0,
               background: "#5B4FD6",
               color: "#fff",
@@ -46,7 +46,7 @@ export default function GlobalError({
             다시 시도
           </button>
           {error.digest && (
-            <p style={{ color: "#6B6A75", fontSize: 12, marginTop: 24 }}>오류 ID {error.digest}</p>
+            <p style={{ color: "#6B6A75", fontSize: 13, marginTop: 24 }}>오류 ID {error.digest}</p>
           )}
         </div>
       </body>

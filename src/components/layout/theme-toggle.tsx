@@ -13,7 +13,7 @@ export function ThemeToggle() {
   return (
     <Button
       variant="ghost"
-      size="icon"
+      size="icon-lg"
       aria-label="라이트/다크 모드 전환"
       title="라이트/다크 모드 전환"
       onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}

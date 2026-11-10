@@ -31,17 +31,16 @@ export function loadOgFonts() {
   return fontsPromise;
 }
 
-// 사이트 다크 팔레트의 hex 근사값 (tokens.css oklch → satori는 hex만)
-const C = {
-  bg: "#141319",
-  fg: "#F5F5F4",
-  muted: "#A8A7B3",
-  brand: "#8B7CF6",
-  brandDeep: "#5B4FD6",
-  line: "#2A2933",
+// 라이트 팔레트의 hex 환산값 (tokens.css oklch → satori는 hex만). 색면 위 글자 대비는 design-audit.md §5.1
+const TONES = {
+  brand: { bg: "#555DE3", fg: "#FCFCFC" },
+  coral: { bg: "#FA6863", fg: "#18181B" },
+  mint: { bg: "#49D3A1", fg: "#18181B" },
 };
 
 export type OgCardProps = {
+  /** 콘텐츠 종류 색. 기본은 사이트 공통색 */
+  tone?: keyof typeof TONES;
   /** 작은 라벨 (예: "블로그", "프로젝트") */
   kicker?: string;
   title: string;
@@ -63,6 +62,7 @@ export async function renderOgCard(props: OgCardProps) {
   const description = props.description ? clamp(props.description, 90) : null;
   const titleSize = [...title].length > 36 ? 52 : 64;
   const withImage = Boolean(props.imageSrc);
+  const tone = TONES[props.tone ?? "brand"];
 
   return new ImageResponse(
     <div
@@ -70,23 +70,11 @@ export async function renderOgCard(props: OgCardProps) {
         width: "100%",
         height: "100%",
         display: "flex",
-        background: C.bg,
-        color: C.fg,
+        background: tone.bg,
+        color: tone.fg,
         fontFamily: "Pretendard",
-        position: "relative",
       }}
     >
-      {/* 상단 브랜드 라인 */}
-      <div
-        style={{
-          position: "absolute",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: 10,
-          background: `linear-gradient(90deg, ${C.brandDeep}, ${C.brand})`,
-        }}
-      />
       {/* 본문 */}
       <div
         style={{
@@ -104,8 +92,6 @@ export async function renderOgCard(props: OgCardProps) {
                 display: "flex",
                 fontSize: 26,
                 fontWeight: 700,
-                color: C.brand,
-                letterSpacing: 1,
               }}
             >
               {props.kicker}
@@ -128,7 +114,6 @@ export async function renderOgCard(props: OgCardProps) {
               style={{
                 display: "flex",
                 fontSize: 30,
-                color: C.muted,
                 lineHeight: 1.45,
                 wordBreak: "keep-all",
               }}
@@ -143,19 +128,26 @@ export async function renderOgCard(props: OgCardProps) {
             alignItems: "center",
             justifyContent: "space-between",
             fontSize: 26,
-            color: C.muted,
           }}
         >
           <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
             <div
               style={{
-                width: 14,
-                height: 14,
-                borderRadius: 999,
-                background: C.brand,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: 48,
+                height: 48,
+                borderRadius: 8,
+                background: tone.fg,
+                color: tone.bg,
+                fontSize: 30,
+                fontWeight: 700,
               }}
-            />
-            <span style={{ color: C.fg, fontWeight: 700 }}>{siteConfig.name}</span>
+            >
+              길
+            </div>
+            <span style={{ fontWeight: 700 }}>{siteConfig.name}</span>
             <span>{siteConfig.domain}</span>
           </div>
           {props.meta && props.meta.length > 0 && (
@@ -167,16 +159,9 @@ export async function renderOgCard(props: OgCardProps) {
           )}
         </div>
       </div>
-      {/* 오른쪽 이미지 또는 색 면 */}
+      {/* 오른쪽 이미지. 없으면 색면만 */}
       {withImage ? (
-        <div
-          style={{
-            display: "flex",
-            width: 440,
-            height: "100%",
-            borderLeft: `1px solid ${C.line}`,
-          }}
-        >
+        <div style={{ display: "flex", width: 440, height: "100%" }}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={props.imageSrc!}
@@ -202,7 +187,8 @@ export async function fetchImageAsDataUrl(url: string, maxBytes = 4 * 1024 * 102
     const res = await fetch(url, { signal: AbortSignal.timeout(4000) });
     if (!res.ok) return null;
     const type = res.headers.get("content-type") ?? "";
-    if (!/^image\/(png|jpeg|webp|gif)/.test(type)) return null;
+    // satori는 data: URL의 webp 크기를 읽지 못해 렌더 전체가 실패한다. png·jpeg·gif만 넘긴다
+    if (!/^image\/(png|jpeg|gif)/.test(type)) return null;
     const buf = Buffer.from(await res.arrayBuffer());
     if (buf.byteLength > maxBytes) return null;
     return `data:${type.split(";")[0]};base64,${buf.toString("base64")}`;

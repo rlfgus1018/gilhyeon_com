@@ -89,6 +89,9 @@ test.describe("관리자: 글 작성·발행·휴지통, 미디어 업로드", (
     // ── 공개 블로그 ──
     await page.goto("/blog");
     await expect(page.getByRole("link", { name: /E2E 테스트 글/ }).first()).toBeVisible();
+    const firstView = page.waitForResponse(
+      (r) => r.url().endsWith(`/api/views/${slug}`) && r.request().method() === "POST",
+    );
     await page.goto(`/blog/${slug}`);
     await expect(page.getByRole("heading", { level: 1, name: "E2E 테스트 글" })).toBeVisible();
     await expect(page.locator("#article h2#첫-소제목")).toBeVisible();
@@ -96,10 +99,10 @@ test.describe("관리자: 글 작성·발행·휴지통, 미디어 업로드", (
       page.getByRole("navigation", { name: "목차" }).getByRole("link", { name: "첫 소제목" }),
     ).toHaveAttribute("href", "#첫-소제목");
     await expect(page.locator("#article .copy-btn").first()).toBeAttached();
-    // 조회수: 첫 방문 POST → 1, 새로고침은 GET(세션 기록) → 여전히 1
-    await expect(page.getByTitle("참고용 열람 횟수")).toHaveText(/1/, { timeout: 15_000 });
+    // 조회수: 첫 방문 POST → 1. 화면은 기준(10) 미만을 숨기므로 응답 값으로 확인한다
+    expect(await (await firstView).json()).toMatchObject({ count: 1, counted: true });
+    await expect(page.getByTitle("참고용 열람 횟수")).toHaveCount(0);
     await page.reload();
-    await expect(page.getByTitle("참고용 열람 횟수")).toHaveText(/^s*1s*$/, { timeout: 15_000 });
     const rss = await page.request.get("/rss.xml");
     expect(rss.ok()).toBeTruthy();
     expect(await rss.text()).toContain(`/blog/${slug}`);
@@ -112,7 +115,7 @@ test.describe("관리자: 글 작성·발행·휴지통, 미디어 업로드", (
     expect(badView.status()).toBe(404);
     // 같은 방문자의 두 번째 POST는 집계되지 않는다 (일 1회)
     const again = await page.request.post(`/api/views/${slug}`);
-    expect((await again.json()).counted).toBe(false);
+    expect(await again.json()).toMatchObject({ count: 1, counted: false });
 
     // 휴지통 → anon에게 사라짐
     await page.goto("/admin/posts");

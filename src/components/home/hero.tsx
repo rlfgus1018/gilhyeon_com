@@ -1,44 +1,55 @@
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowRightIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { GitHubIcon } from "@/components/icons";
+import { siteConfig } from "@/lib/site-config";
 import type { SiteData } from "@/lib/admin/site-schemas";
 import type { MediaRow } from "@/lib/supabase/types";
 
-export function Hero({ hero, avatar }: { hero: SiteData["hero"]; avatar: MediaRow | null }) {
+type Props = { hero: SiteData["hero"]; avatar: MediaRow | null; hasProjects: boolean };
+
+/** 사이트에서 유일하게 큰 요소. 색면은 소개를 뜻하는 amber (design-audit.md §5.1) */
+export function Hero({ hero, avatar, hasProjects }: Props) {
   return (
-    <section className="grid items-center gap-10 md:grid-cols-[1fr_auto]">
+    <section className="grid items-center gap-8 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-12">
       <div className="space-y-6">
-        <h1 className="text-4xl font-bold sm:text-5xl">{hero.greeting}</h1>
-        <p className="text-muted-foreground max-w-xl text-lg">{hero.intro.join(" ")}</p>
+        <h1 className="text-display leading-[1.15] font-bold">{hero.greeting}</h1>
+        <p className="text-muted-foreground text-item max-w-xl leading-relaxed">
+          {hero.intro.join(" ")}
+        </p>
         <div className="flex flex-wrap gap-3">
-          <Button size="lg" render={<Link href="/about" />}>
-            소개 보기 <ArrowRightIcon aria-hidden />
+          <Button size="lg" render={<Link href={hasProjects ? "/projects" : "/about"} />}>
+            {hasProjects ? "프로젝트 보기" : "소개 보기"}
           </Button>
-          <Button size="lg" variant="outline" render={<Link href="/guestbook" />}>
-            방명록 남기기
+          <Button
+            size="lg"
+            variant="outline"
+            render={<a href={siteConfig.github} target="_blank" rel="noopener noreferrer" />}
+          >
+            <GitHubIcon className="size-4" />
+            GitHub
           </Button>
         </div>
       </div>
-      <div className="relative mx-auto size-44 sm:size-56">
-        <div
-          aria-hidden
-          className="bg-brand-soft absolute inset-0 rotate-3 rounded-[var(--radius-card)]"
-        />
+      <div
+        data-accent="amber"
+        className="bg-tone order-first flex aspect-[4/3] items-center justify-center rounded-[var(--radius-card)] md:order-none md:aspect-square"
+      >
         {avatar ? (
-          <Image
-            src={avatar.url}
-            alt={`${hero.greeting.replace(/[^가-힣a-zA-Z ]/g, "").trim()} 프로필 사진`}
-            fill
-            priority
-            sizes="(min-width: 640px) 224px, 176px"
-            className="relative rounded-[var(--radius-card)] object-cover"
-          />
-        ) : (
-          <div aria-hidden className="relative size-full">
-            <div className="bg-coral-soft absolute -right-4 -bottom-4 size-16 rounded-2xl" />
-            <div className="bg-mint-soft absolute -top-4 -left-4 size-12 rounded-full" />
+          <div className="relative aspect-[4/5] h-4/5 overflow-hidden rounded-lg">
+            <Image
+              src={avatar.url}
+              alt={`${siteConfig.name} 프로필 사진`}
+              fill
+              priority
+              sizes="(min-width: 768px) 225px, 172px"
+              className="object-cover"
+            />
           </div>
+        ) : (
+          <span aria-hidden className="text-on-tone text-[8rem] leading-none font-bold">
+            길
+          </span>
         )}
       </div>
     </section>

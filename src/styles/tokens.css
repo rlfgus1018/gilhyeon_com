@@ -13,6 +13,16 @@
   --violet: oklch(0.65 0.18 300);
   --violet-soft: oklch(0.95 0.04 300);
 
+  /* 글자·아이콘용 진한 강조색. --tone 계열은 면과 큰 도형에만 쓴다 (design-audit.md §5.1) */
+  --brand-ink: oklch(0.5 0.2 275);
+  --coral-ink: oklch(0.5 0.17 25);
+  --amber-ink: oklch(0.47 0.1 70);
+  --mint-ink: oklch(0.46 0.09 165);
+  --sky-ink: oklch(0.47 0.1 235);
+  --violet-ink: oklch(0.48 0.17 300);
+  /* 인디고 외 강조색 면 위의 글자색 */
+  --on-fill: var(--foreground);
+
   --background: oklch(0.985 0.002 90);
   --foreground: oklch(0.21 0.006 285);
   --card: oklch(1 0 0);
@@ -31,8 +41,9 @@
   --border: oklch(0.92 0.004 90);
   --input: oklch(0.92 0.004 90);
   --ring: var(--brand);
-  --radius: 0.75rem;
-  --radius-card: 1.5rem;
+  /* 모서리 단계: 카드·사진 12px, 버튼 8px, 태그 6px (design-audit.md §5.3) */
+  --radius: 0.5rem;
+  --radius-card: 0.75rem;
 
   --sidebar: oklch(0.975 0.002 90);
   --sidebar-foreground: var(--foreground);
@@ -62,6 +73,14 @@
   --sky-soft: oklch(0.29 0.05 230);
   --violet: oklch(0.7 0.16 300);
   --violet-soft: oklch(0.3 0.06 300);
+
+  --brand-ink: var(--brand);
+  --coral-ink: var(--coral);
+  --amber-ink: var(--amber);
+  --mint-ink: var(--mint);
+  --sky-ink: var(--sky);
+  --violet-ink: var(--violet);
+  --on-fill: oklch(0.15 0.02 275);
 
   --background: oklch(0.17 0.008 290);
   --foreground: oklch(0.96 0.003 90);
@@ -96,24 +115,36 @@
 [data-accent="brand"] {
   --tone: var(--brand);
   --tone-soft: var(--brand-soft);
+  --tone-ink: var(--brand-ink);
+  --on-tone: var(--primary-foreground);
 }
 [data-accent="coral"] {
   --tone: var(--coral);
   --tone-soft: var(--coral-soft);
+  --tone-ink: var(--coral-ink);
+  --on-tone: var(--on-fill);
 }
 [data-accent="amber"] {
   --tone: var(--amber);
   --tone-soft: var(--amber-soft);
+  --tone-ink: var(--amber-ink);
+  --on-tone: var(--on-fill);
 }
 [data-accent="mint"] {
   --tone: var(--mint);
   --tone-soft: var(--mint-soft);
+  --tone-ink: var(--mint-ink);
+  --on-tone: var(--on-fill);
 }
 [data-accent="sky"] {
   --tone: var(--sky);
   --tone-soft: var(--sky-soft);
+  --tone-ink: var(--sky-ink);
+  --on-tone: var(--on-fill);
 }
 [data-accent="violet"] {
   --tone: var(--violet);
   --tone-soft: var(--violet-soft);
+  --tone-ink: var(--violet-ink);
+  --on-tone: var(--on-fill);
 }

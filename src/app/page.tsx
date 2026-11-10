@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import { Container } from "@/components/layout/container";
 import { Hero } from "@/components/home/hero";
 import { PhotoStrip } from "@/components/home/photo-strip";
-import { Bento } from "@/components/home/bento";
+import { FeaturedProjects } from "@/components/home/featured-projects";
 import { LatestPosts } from "@/components/home/latest-posts";
-import { SiteCards } from "@/components/home/site-cards";
-import { GuestbookCta } from "@/components/home/guestbook-cta";
+import { NowAndTools } from "@/components/home/now-and-tools";
+import { GuestbookLine } from "@/components/home/guestbook-line";
 import { getSiteContent } from "@/lib/content/site";
 import { getPublishedPosts, getViewCounts } from "@/lib/content/posts";
 import { getPublishedProjects } from "@/lib/content/projects";
@@ -60,6 +60,13 @@ export default async function HomePage() {
   const avatar = site.data.hero.avatar_media_id
     ? (site.media.get(site.data.hero.avatar_media_id) ?? null)
     : null;
+  // 대표 프로젝트를 앞세운 뒤 2개만 보여준다
+  const featured = projects.ok
+    ? [
+        ...projects.data.filter((p) => p.featured),
+        ...projects.data.filter((p) => !p.featured),
+      ].slice(0, 2)
+    : [];
 
   return (
     <Container className="space-y-20 py-16 sm:py-24">
@@ -67,22 +74,12 @@ export default async function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(HOME_JSON_LD) }}
       />
-      <Hero hero={site.data.hero} avatar={avatar} />
-      <PhotoStrip photos={site.data.photos} media={site.media} />
-      <Bento intro={site.data.intro} now={site.data.now} stack={site.data.stack} />
+      <Hero hero={site.data.hero} avatar={avatar} hasProjects={featured.length > 0} />
+      <FeaturedProjects items={featured} ok={projects.ok} />
       <LatestPosts posts={latest} views={views.ok ? views.map : null} ok={posts.ok} />
-      <SiteCards
-        guestbook={guestbook}
-        projects={{
-          ok: projects.ok,
-          items: projects.ok
-            ? projects.data
-                .filter((p) => p.featured)
-                .concat(projects.data.filter((p) => !p.featured))
-            : [],
-        }}
-      />
-      <GuestbookCta />
+      <NowAndTools now={site.data.now} stack={site.data.stack} />
+      <PhotoStrip photos={site.data.photos} media={site.media} />
+      <GuestbookLine ok={guestbook.ok} entries={guestbook.entries} count={guestbook.count} />
     </Container>
   );
 }

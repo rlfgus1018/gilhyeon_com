@@ -52,7 +52,7 @@ function BlogList({ posts, tags, views, tag }: Props & { tag: string | null }) {
           <Link
             href={pathname}
             className={cn(
-              "rounded-full border px-3 py-1 text-sm",
+              "rounded-md border px-3 py-1 text-[0.9375rem]",
               !tag ? "bg-foreground text-background border-foreground" : "hover:bg-accent",
             )}
             aria-current={!tag ? "true" : undefined}
@@ -64,7 +64,7 @@ function BlogList({ posts, tags, views, tag }: Props & { tag: string | null }) {
               key={t}
               href={`${pathname}?tag=${encodeURIComponent(t)}`}
               className={cn(
-                "rounded-full border px-3 py-1 text-sm",
+                "rounded-md border px-3 py-1 text-[0.9375rem]",
                 tag === t ? "bg-foreground text-background border-foreground" : "hover:bg-accent",
               )}
               aria-current={tag === t ? "true" : undefined}
@@ -76,7 +76,7 @@ function BlogList({ posts, tags, views, tag }: Props & { tag: string | null }) {
       )}
 
       {rest.length === 0 ? (
-        <p className="text-muted-foreground py-10 text-center text-sm">
+        <p className="text-muted-foreground text-body">
           {tag ? `"${tag}" 태그의 글이 없어요.` : "아직 글이 없어요."}
         </p>
       ) : (

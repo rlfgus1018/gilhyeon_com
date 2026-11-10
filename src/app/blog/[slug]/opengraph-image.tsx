@@ -12,7 +12,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const { slug } = await params;
   const r = await getPostBySlug(slug);
   if (!r.ok || !r.data) {
-    return renderOgCard({ kicker: "블로그", title: "글을 찾을 수 없어요" });
+    return renderOgCard({ tone: "coral", kicker: "블로그", title: "글을 찾을 수 없어요" });
   }
   const p = r.data;
   const imageSrc = p.cover?.url ? await fetchImageAsDataUrl(p.cover.url) : null;
@@ -21,7 +21,8 @@ export default async function Image({ params }: { params: Promise<{ slug: string
     `${p.reading_minutes}분 읽기`,
   ];
   return renderOgCard({
-    kicker: p.tags.length ? p.tags.slice(0, 3).join(" · ") : "블로그",
+    tone: "coral",
+    kicker: p.tags.length ? p.tags.slice(0, 3).join(", ") : "블로그",
     title: p.title,
     description: p.description,
     meta,

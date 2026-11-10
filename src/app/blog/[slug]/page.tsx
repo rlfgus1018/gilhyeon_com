@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import { ArrowLeftIcon } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/layout/container";
+import { PageHeader } from "@/components/layout/page-header";
 import { ArticleBody } from "@/components/blog/article-body";
 import { ArticleIslands } from "@/components/blog/article-islands";
 import { TableOfContents } from "@/components/blog/table-of-contents";
@@ -72,35 +73,41 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-12">
-        <article lang={post.lang} id="article" className="min-w-0">
-          <header className="mb-10 space-y-4">
-            <Link
-              href="/blog"
-              className="text-muted-foreground inline-flex items-center gap-1 text-sm hover:underline"
+        <article lang={post.lang} id="article" data-accent="coral" className="min-w-0">
+          <div className="mb-10">
+            <PageHeader
+              accent="coral"
+              title={post.title}
+              lead={post.description || undefined}
+              before={
+                <>
+                  <Link
+                    href="/blog"
+                    className="text-muted-foreground text-aux inline-flex items-center gap-1 hover:underline"
+                  >
+                    <ArrowLeftIcon className="size-3.5" aria-hidden /> 블로그
+                  </Link>
+                  {post.tags.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5">
+                      {post.tags.map((t) => (
+                        <Link key={t} href={`/blog?tag=${encodeURIComponent(t)}`}>
+                          <Badge variant="secondary">{t}</Badge>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </>
+              }
             >
-              <ArrowLeftIcon className="size-3.5" aria-hidden /> 블로그
-            </Link>
-            <div className="flex flex-wrap gap-1.5">
-              {post.tags.map((t) => (
-                <Link key={t} href={`/blog?tag=${encodeURIComponent(t)}`}>
-                  <Badge variant="secondary">{t}</Badge>
-                </Link>
-              ))}
-            </div>
-            <h1 className="text-3xl font-bold sm:text-4xl">{post.title}</h1>
-            {post.description && (
-              <p className="text-muted-foreground text-lg">{post.description}</p>
-            )}
-            <p className="text-muted-foreground flex flex-wrap items-center gap-x-2 text-sm">
-              <time dateTime={post.published_at ?? undefined}>
-                {formatDate(post.published_at ?? post.created_at)}
-              </time>
-              <span aria-hidden>·</span>
-              <span>{post.reading_minutes}분 읽기</span>
-              <span aria-hidden>·</span>
-              <ViewCounter slug={post.slug} />
-            </p>
-          </header>
+              <p className="text-muted-foreground text-aux flex flex-wrap items-center gap-x-4">
+                <time dateTime={post.published_at ?? undefined}>
+                  {formatDate(post.published_at ?? post.created_at)}
+                </time>
+                <span>{post.reading_minutes}분 읽기</span>
+                <ViewCounter slug={post.slug} />
+              </p>
+            </PageHeader>
+          </div>
 
           <ArticleBody html={post.content_html} />
           <ArticleIslands rootId="article" />
@@ -108,8 +115,8 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
           <nav aria-label="이전·다음 글" className="mt-14 grid gap-3 sm:grid-cols-2">
             {prev ? (
               <Link href={`/blog/${prev.slug}`} className="card-surface card-surface-hover p-4">
-                <span className="text-muted-foreground text-xs">이전 글</span>
-                <p className="mt-1 font-medium">{prev.title}</p>
+                <span className="text-muted-foreground text-min">이전 글</span>
+                <p className="text-body mt-1 font-medium">{prev.title}</p>
               </Link>
             ) : (
               <span />
@@ -119,10 +126,8 @@ export default async function PostPage({ params }: PageProps<"/blog/[slug]">) {
                 href={`/blog/${next.slug}`}
                 className="card-surface card-surface-hover p-4 text-right"
               >
-                <span className="text-muted-foreground text-xs">다음 글</span>
-                <p className="mt-1 inline-flex items-center gap-1 font-medium">
-                  {next.title} <ArrowRightIcon className="size-3.5" aria-hidden />
-                </p>
+                <span className="text-muted-foreground text-min">다음 글</span>
+                <p className="text-body mt-1 font-medium">{next.title}</p>
               </Link>
             )}
           </nav>

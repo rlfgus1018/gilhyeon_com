@@ -9,7 +9,7 @@ export function SignInButtons({ next }: { next: AllowedNextPath }) {
       <form action={signInWith}>
         <input type="hidden" name="provider" value="github" />
         <input type="hidden" name="next" value={next} />
-        <Button type="submit" className="w-full">
+        <Button type="submit" size="lg" className="w-full">
           <GitHubIcon className="size-4" />
           GitHub로 계속하기
         </Button>
@@ -17,7 +17,7 @@ export function SignInButtons({ next }: { next: AllowedNextPath }) {
       <form action={signInWith}>
         <input type="hidden" name="provider" value="google" />
         <input type="hidden" name="next" value={next} />
-        <Button type="submit" variant="outline" className="w-full">
+        <Button type="submit" variant="outline" size="lg" className="w-full">
           <GoogleIcon className="size-4" />
           Google로 계속하기
         </Button>

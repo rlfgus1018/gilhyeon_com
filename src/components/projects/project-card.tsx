@@ -6,8 +6,8 @@ import { GitHubIcon } from "@/components/icons";
 import type { ProjectSummary } from "@/lib/content/projects";
 
 const WORK = { done: null, wip: "진행 중", archived: "보관" } as const;
-const ACCENT = { ai: "brand", web: "sky", other: "amber" } as const;
 
+/** 유형(AI, Web, 기타)은 목록의 묶음 제목으로 보여주고, 카드 색은 프로젝트 색으로 통일한다. */
 export function ProjectCard({ project: p }: { project: ProjectSummary }) {
   const title = p.has_body ? (
     <Link href={`/projects/${p.slug}`} className="hover:underline">
@@ -16,11 +16,10 @@ export function ProjectCard({ project: p }: { project: ProjectSummary }) {
   ) : (
     p.title
   );
+  const hasThumbnail = Boolean(p.thumbnail?.url);
+  const status = WORK[p.work_status];
   return (
-    <article
-      data-accent={ACCENT[p.type]}
-      className="card-surface card-surface-hover flex flex-col overflow-hidden"
-    >
+    <article data-accent="mint" className="card-surface flex flex-col overflow-hidden">
       {p.thumbnail?.url ? (
         <div className="bg-muted relative aspect-video">
           <Image
@@ -32,25 +31,20 @@ export function ProjectCard({ project: p }: { project: ProjectSummary }) {
           />
         </div>
       ) : (
-        <div aria-hidden className="bg-tone-soft relative aspect-video">
-          <span className="bg-tone/40 absolute right-6 bottom-6 size-12 rounded-2xl" />
-          <span className="bg-card absolute top-6 left-6 size-8 rounded-full border" />
+        <div className="bg-tone text-on-tone flex aspect-[3/1] items-end p-5">
+          <h3 className="text-item font-bold">{title}</h3>
         </div>
       )}
       <div className="flex flex-1 flex-col gap-3 p-5">
-        <div className="flex items-start justify-between gap-2">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          {WORK[p.work_status] && <Badge variant="outline">{WORK[p.work_status]}</Badge>}
-        </div>
-        <p className="text-muted-foreground flex-1 text-sm">{p.summary}</p>
-        <div className="flex flex-wrap gap-1.5">
-          {p.tech.map((t) => (
-            <Badge key={t} variant="secondary">
-              {t}
-            </Badge>
-          ))}
-        </div>
-        <div className="flex flex-wrap gap-3 text-sm">
+        {(hasThumbnail || status) && (
+          <div className="flex items-start justify-between gap-2">
+            {hasThumbnail && <h3 className="text-item font-semibold">{title}</h3>}
+            {status && <Badge variant="outline">{status}</Badge>}
+          </div>
+        )}
+        <p className="text-muted-foreground text-body flex-1">{p.summary}</p>
+        {p.tech.length > 0 && <p className="text-muted-foreground text-aux">{p.tech.join(", ")}</p>}
+        <div className="text-aux flex flex-wrap gap-3">
           {p.links.github && (
             <a
               href={p.links.github}
@@ -79,7 +73,7 @@ export function ProjectCard({ project: p }: { project: ProjectSummary }) {
             </Link>
           )}
           {p.has_body && (
-            <Link href={`/projects/${p.slug}`} className="text-tone ml-auto hover:underline">
+            <Link href={`/projects/${p.slug}`} className="text-tone-ink ml-auto hover:underline">
               자세히
             </Link>
           )}

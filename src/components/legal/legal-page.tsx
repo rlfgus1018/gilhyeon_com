@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Container } from "@/components/layout/container";
+import { PageHeader } from "@/components/layout/page-header";
 
 /** 개인정보처리방침·서비스 약관 공용 틀. 본문은 prose-article 스타일을 그대로 쓴다. */
 export function LegalPage({
@@ -16,13 +17,13 @@ export function LegalPage({
   return (
     <Container className="py-12 sm:py-16">
       <article className="prose-article mx-auto max-w-3xl">
-        <header className="not-prose mb-10 space-y-3">
-          <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>
-          <p className="text-muted-foreground text-lg">{lead}</p>
-          <p className="text-muted-foreground text-sm">
-            시행일: <time dateTime={effectiveDate}>{formatKo(effectiveDate)}</time>
-          </p>
-        </header>
+        <div className="not-prose mb-10">
+          <PageHeader accent="brand" title={title} lead={lead}>
+            <p className="text-muted-foreground text-aux">
+              시행일: <time dateTime={effectiveDate}>{formatKo(effectiveDate)}</time>
+            </p>
+          </PageHeader>
+        </div>
         {children}
       </article>
     </Container>

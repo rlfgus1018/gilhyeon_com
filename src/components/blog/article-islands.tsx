@@ -25,7 +25,7 @@ export function ArticleIslands({ rootId }: { rootId: string }) {
         const btn = document.createElement("button");
         btn.type = "button";
         btn.className =
-          "copy-btn bg-card hover:bg-accent absolute top-2 right-2 rounded-md border px-2 py-1 text-xs opacity-0 transition group-hover:opacity-100 focus:opacity-100";
+          "copy-btn bg-card hover:bg-accent absolute top-2 right-2 rounded-md border px-2 py-1 text-min opacity-0 transition group-hover:opacity-100 focus:opacity-100";
         btn.textContent = "복사";
         btn.setAttribute("aria-label", "코드 복사");
         const onClick = async () => {

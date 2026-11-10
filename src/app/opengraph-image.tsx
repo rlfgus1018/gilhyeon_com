@@ -9,7 +9,7 @@ export const contentType = OG_CONTENT_TYPE;
 export default function Image() {
   return renderOgCard({
     kicker: siteConfig.nameEn,
-    title: siteConfig.fallback.heroGreeting.replace(/\s*👋\s*$/, ""),
+    title: siteConfig.fallback.heroGreeting,
     description: siteConfig.description,
   });
 }

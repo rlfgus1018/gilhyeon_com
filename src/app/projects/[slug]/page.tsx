@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeftIcon, ExternalLinkIcon } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/layout/container";
+import { PageHeader } from "@/components/layout/page-header";
 import { ArticleBody } from "@/components/blog/article-body";
 import { ArticleIslands } from "@/components/blog/article-islands";
 import { TableOfContents } from "@/components/blog/table-of-contents";
@@ -64,53 +64,55 @@ export default async function ProjectPage({ params }: PageProps<"/projects/[slug
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <div className="lg:grid lg:grid-cols-[minmax(0,1fr)_220px] lg:gap-12">
-        <article id="article" className="min-w-0">
-          <header className="mb-10 space-y-4">
-            <Link
-              href="/projects"
-              className="text-muted-foreground inline-flex items-center gap-1 text-sm hover:underline"
-            >
-              <ArrowLeftIcon className="size-3.5" aria-hidden /> 프로젝트
-            </Link>
-            <h1 className="text-3xl font-bold sm:text-4xl">{p.title}</h1>
-            {p.summary && <p className="text-muted-foreground text-lg">{p.summary}</p>}
-            <div className="flex flex-wrap gap-1.5">
-              {p.tech.map((t) => (
-                <Badge key={t} variant="secondary">
-                  {t}
-                </Badge>
-              ))}
-            </div>
-            <div className="flex flex-wrap gap-3 text-sm">
-              {p.links.github && (
-                <a
-                  href={p.links.github}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 hover:underline"
+        <article id="article" data-accent="mint" className="min-w-0">
+          <div className="mb-10">
+            <PageHeader
+              accent="mint"
+              title={p.title}
+              lead={p.summary || undefined}
+              before={
+                <Link
+                  href="/projects"
+                  className="text-muted-foreground text-aux inline-flex items-center gap-1 hover:underline"
                 >
-                  <GitHubIcon className="size-3.5" />
-                  GitHub
-                </a>
-              )}
-              {p.links.demo && (
-                <a
-                  href={p.links.demo}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 hover:underline"
-                >
-                  <ExternalLinkIcon className="size-3.5" aria-hidden />
-                  Demo
-                </a>
-              )}
-              {p.links.post && (
-                <Link href={p.links.post} className="hover:underline">
-                  관련 글
+                  <ArrowLeftIcon className="size-3.5" aria-hidden /> 프로젝트
                 </Link>
+              }
+            >
+              {p.tech.length > 0 && (
+                <p className="text-muted-foreground text-aux">{p.tech.join(", ")}</p>
               )}
-            </div>
-          </header>
+              <div className="text-aux flex flex-wrap gap-3">
+                {p.links.github && (
+                  <a
+                    href={p.links.github}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:underline"
+                  >
+                    <GitHubIcon className="size-3.5" />
+                    GitHub
+                  </a>
+                )}
+                {p.links.demo && (
+                  <a
+                    href={p.links.demo}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1 hover:underline"
+                  >
+                    <ExternalLinkIcon className="size-3.5" aria-hidden />
+                    Demo
+                  </a>
+                )}
+                {p.links.post && (
+                  <Link href={p.links.post} className="hover:underline">
+                    관련 글
+                  </Link>
+                )}
+              </div>
+            </PageHeader>
+          </div>
           <ArticleBody html={p.content_html} />
           <ArticleIslands rootId="article" />
         </article>

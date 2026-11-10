@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import Image from "next/image";
 import { Container } from "@/components/layout/container";
+import { PageHeader } from "@/components/layout/page-header";
 import { AuthBanner } from "@/components/admin/auth-banner";
 import { SignInButtons } from "@/components/admin/sign-in-buttons";
 import { GuestbookBoard } from "@/components/guestbook/guestbook-board";
@@ -13,13 +14,16 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "방명록",
-  description: "지나가는 길에 한 줄 남겨주세요. GitHub나 Google로 로그인하면 바로 쓸 수 있어요.",
+  description: "이길현에게 남기는 인사와 의견. GitHub나 Google로 로그인하면 쓸 수 있어요.",
   alternates: { canonical: "/guestbook" },
 };
 
 function Notice({ children }: { children: React.ReactNode }) {
   return (
-    <p role="alert" className="border-coral bg-coral-soft rounded-xl border px-4 py-3 text-sm">
+    <p
+      role="alert"
+      className="border-coral bg-coral-soft text-aux rounded-[var(--radius-card)] border px-4 py-3"
+    >
       {children}
     </p>
   );
@@ -39,18 +43,16 @@ export default async function GuestbookPage({ searchParams }: PageProps<"/guestb
   const supabase = await createServerSupabase();
 
   const header = (
-    <header className="space-y-3">
-      <p className="text-brand text-xs font-semibold tracking-wide uppercase">Guestbook</p>
-      <h1 className="text-3xl font-bold sm:text-4xl">방명록</h1>
-      <p className="text-muted-foreground max-w-xl">
-        지나가는 길에 한 줄 남겨주세요. 인사도 좋고, 글에 대한 의견도 좋아요.
-      </p>
-    </header>
+    <PageHeader
+      accent="violet"
+      title="방명록"
+      lead="인사든 글에 대한 의견이든 편하게 남겨주세요."
+    />
   );
 
   if (!supabase) {
     return (
-      <Container className="space-y-8 py-16 sm:py-24">
+      <Container className="space-y-8 py-12 sm:py-16">
         {header}
         <Notice>방명록을 잠시 사용할 수 없어요. 잠시 후 다시 찾아와 주세요.</Notice>
       </Container>
@@ -76,12 +78,12 @@ export default async function GuestbookPage({ searchParams }: PageProps<"/guestb
     /^https:\/\/(avatars\.githubusercontent\.com|lh[0-9]\.googleusercontent\.com)\//.test(avatar);
 
   return (
-    <Container className="space-y-8 py-16 sm:py-24">
+    <Container className="space-y-8 py-12 sm:py-16">
       {header}
       <AuthBanner code={authCode} />
 
       {user ? (
-        <div className="card-surface flex flex-wrap items-center gap-3 px-4 py-3 text-sm">
+        <div className="card-surface text-aux flex flex-wrap items-center gap-3 px-4 py-3">
           {avatarOk ? (
             <Image src={avatar} alt="" width={28} height={28} className="size-7 rounded-full" />
           ) : (
@@ -92,7 +94,7 @@ export default async function GuestbookPage({ searchParams }: PageProps<"/guestb
             <span className="text-muted-foreground"> 님으로 로그인했어요</span>
           </p>
           {isAdmin && (
-            <Link href="/admin/guestbook" className="text-brand font-medium hover:underline">
+            <Link href="/admin/guestbook" className="text-brand-ink font-medium hover:underline">
               관리 콘솔
             </Link>
           )}
@@ -104,16 +106,12 @@ export default async function GuestbookPage({ searchParams }: PageProps<"/guestb
           </form>
         </div>
       ) : (
-        <section
-          aria-labelledby="guestbook-signin-heading"
-          data-accent="violet"
-          className="card-surface bg-tone-soft/40 space-y-4 p-5"
-        >
+        <section aria-labelledby="guestbook-signin-heading" className="card-surface space-y-4 p-5">
           <div>
-            <h2 id="guestbook-signin-heading" className="font-semibold">
+            <h2 id="guestbook-signin-heading" className="text-item font-semibold">
               로그인하고 한 줄 남기기
             </h2>
-            <p className="text-muted-foreground mt-1 text-sm">
+            <p className="text-muted-foreground text-aux mt-1">
               이름과 프로필 사진만 표시돼요. 이메일은 공개되지 않아요.
             </p>
           </div>

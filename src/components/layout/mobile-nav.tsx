@@ -24,7 +24,9 @@ export function MobileNav() {
   return (
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
-        render={<Button variant="ghost" size="icon" aria-label="메뉴 열기" className="md:hidden" />}
+        render={
+          <Button variant="ghost" size="icon-lg" aria-label="메뉴 열기" className="md:hidden" />
+        }
       >
         <MenuIcon aria-hidden />
       </SheetTrigger>
@@ -43,14 +45,10 @@ export function MobileNav() {
                 aria-current={active ? "page" : undefined}
                 onClick={() => setOpen(false)}
                 className={cn(
-                  "flex items-center gap-2 rounded-xl px-3 py-3 text-base font-medium transition-colors",
+                  "flex items-center rounded-lg px-3 py-3 text-base font-medium transition-colors duration-150",
                   active ? "bg-accent text-foreground" : "text-muted-foreground hover:bg-accent/60",
                 )}
               >
-                <span
-                  aria-hidden
-                  className={cn("size-2 rounded-full", active ? "bg-brand" : "bg-border")}
-                />
                 {item.label}
               </Link>
             );

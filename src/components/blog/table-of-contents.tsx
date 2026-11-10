@@ -30,9 +30,7 @@ export function TableOfContents({ items }: { items: Item[] }) {
   if (items.length === 0) return null;
   return (
     <nav aria-label="목차" className="text-sm">
-      <p className="text-muted-foreground mb-2 text-xs font-semibold tracking-wide uppercase">
-        목차
-      </p>
+      <p className="text-muted-foreground text-min mb-2 font-semibold">목차</p>
       <ul className="border-l">
         {items.map((i) => (
           <li key={i.id}>

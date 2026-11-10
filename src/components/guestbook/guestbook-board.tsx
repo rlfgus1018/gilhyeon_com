@@ -113,7 +113,7 @@ export function GuestbookBoard({
         {error && (
           <p
             role="alert"
-            className="border-coral bg-coral-soft rounded-xl border px-4 py-3 text-sm"
+            className="border-coral bg-coral-soft text-aux rounded-[var(--radius-card)] border px-4 py-3"
           >
             {error}
           </p>
@@ -140,7 +140,7 @@ export function GuestbookBoard({
 
         {cursor && (
           <div className="flex justify-center pt-2">
-            <Button variant="outline" onClick={loadMore} disabled={loadingMore}>
+            <Button variant="outline" size="lg" onClick={loadMore} disabled={loadingMore}>
               {loadingMore ? "불러오는 중…" : "더 보기"}
             </Button>
           </div>

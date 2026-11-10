@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
 import { Container } from "@/components/layout/container";
+import { PageHeader } from "@/components/layout/page-header";
 import { ProjectCard } from "@/components/projects/project-card";
 import { getPublishedProjects } from "@/lib/content/projects";
+import { siteConfig } from "@/lib/site-config";
 
 export const revalidate = 3600;
 export const metadata: Metadata = {
@@ -20,18 +22,21 @@ export default async function ProjectsPage() {
   const r = await getPublishedProjects();
   const items = r.ok ? r.data : [];
   return (
-    <Container className="space-y-10 py-16">
-      <header>
-        <h1 className="text-3xl font-bold sm:text-4xl">프로젝트</h1>
-        <p className="text-muted-foreground mt-2">만들어 본 것들. AI/ML이 많아요.</p>
-      </header>
+    <Container className="space-y-10 py-12 sm:py-16">
+      <PageHeader accent="mint" title="프로젝트" lead="만들어 본 것들. AI/ML이 많아요." />
       {!r.ok ? (
-        <p className="text-muted-foreground card-surface p-8 text-center text-sm">
-          프로젝트를 잠시 불러올 수 없어요.
-        </p>
+        <p className="text-muted-foreground text-body">프로젝트를 잠시 불러올 수 없어요.</p>
       ) : items.length === 0 ? (
-        <p className="text-muted-foreground card-surface p-8 text-center text-sm">
-          프로젝트를 정리하고 있어요.
+        <p className="text-muted-foreground text-body">
+          아직 공개한 프로젝트가 없어요.{" "}
+          <a
+            href={siteConfig.github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-foreground underline underline-offset-2"
+          >
+            GitHub에서 작업물 보기
+          </a>
         </p>
       ) : (
         TYPES.map((t) => {
@@ -39,7 +44,7 @@ export default async function ProjectsPage() {
           if (group.length === 0) return null;
           return (
             <section key={t.key} aria-labelledby={`type-${t.key}`}>
-              <h2 id={`type-${t.key}`} className="mb-4 text-xl font-semibold">
+              <h2 id={`type-${t.key}`} className="text-section mb-5 font-bold">
                 {t.label}
               </h2>
               <div className="grid gap-4 md:grid-cols-2">

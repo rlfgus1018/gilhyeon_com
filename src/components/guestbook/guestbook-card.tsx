@@ -58,7 +58,7 @@ export function GuestbookCard({ entry, isAdmin, busy, onDelete, onToggleHidden }
         ) : (
           <span
             aria-hidden
-            className="bg-tone text-background grid size-7 shrink-0 place-items-center rounded-full text-xs font-semibold"
+            className="bg-tone text-on-tone text-min grid size-7 shrink-0 place-items-center rounded-full font-semibold"
           >
             {[...entry.author_name][0] ?? "?"}
           </span>
@@ -66,9 +66,9 @@ export function GuestbookCard({ entry, isAdmin, busy, onDelete, onToggleHidden }
         <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-medium">
             {entry.author_name}
-            {entry.mine && <span className="text-muted-foreground font-normal"> · 내 글</span>}
+            {entry.mine && <span className="text-muted-foreground ml-2 font-normal">내 글</span>}
           </p>
-          <p className="text-muted-foreground text-xs">
+          <p className="text-muted-foreground text-min">
             <time dateTime={entry.created_at}>{dateFmt.format(new Date(entry.created_at))}</time>
             {entry.is_hidden && (
               <span className="ml-1.5 inline-flex items-center gap-1">
@@ -79,17 +79,12 @@ export function GuestbookCard({ entry, isAdmin, busy, onDelete, onToggleHidden }
         </div>
 
         {confirming ? (
-          <span className="flex items-center gap-1 text-xs">
+          <span className="text-min flex items-center gap-1">
             삭제할까요?
-            <Button
-              size="xs"
-              variant="destructive"
-              disabled={busy}
-              onClick={() => onDelete(entry.id)}
-            >
+            <Button variant="destructive" disabled={busy} onClick={() => onDelete(entry.id)}>
               삭제
             </Button>
-            <Button size="xs" variant="ghost" onClick={() => setConfirming(false)}>
+            <Button variant="ghost" onClick={() => setConfirming(false)}>
               취소
             </Button>
           </span>
@@ -100,7 +95,7 @@ export function GuestbookCard({ entry, isAdmin, busy, onDelete, onToggleHidden }
                 render={
                   <Button
                     variant="ghost"
-                    size="icon-sm"
+                    size="icon-lg"
                     aria-label={`${entry.author_name} 님의 글 메뉴`}
                     disabled={busy}
                   />

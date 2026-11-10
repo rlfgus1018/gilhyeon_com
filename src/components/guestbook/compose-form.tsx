@@ -72,7 +72,7 @@ export function ComposeForm({ onCreated, onSessionExpired }: Props) {
           disabled={pending}
           required
         />
-        <p id={`${uid}-hint`} className="text-muted-foreground flex justify-between gap-3 text-xs">
+        <p id={`${uid}-hint`} className="text-muted-foreground text-min flex justify-between gap-3">
           <span>링크는 넣을 수 없어요. 1분에 1개, 하루 5개까지 남길 수 있어요.</span>
           <span className={cn("tabular-nums", over && "text-destructive font-medium")}>
             {length}/{MESSAGE_MAX}
@@ -104,7 +104,7 @@ export function ComposeForm({ onCreated, onSessionExpired }: Props) {
             ))}
           </div>
         </fieldset>
-        <Button type="submit" disabled={pending || length === 0 || over}>
+        <Button type="submit" size="lg" disabled={pending || length === 0 || over}>
           <SendIcon aria-hidden />
           {pending ? "남기는 중…" : "남기기"}
         </Button>

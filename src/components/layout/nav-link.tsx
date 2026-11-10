@@ -12,6 +12,25 @@ export function isActivePath(pathname: string, href: string, exact = false) {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
+/** 공개 사이트 헤더용 텍스트 링크. 활성 표시는 밑줄 하나로 끝낸다. */
+export function HeaderNavLink({ href, children }: { href: string; children: React.ReactNode }) {
+  const active = isActivePath(usePathname(), href);
+  return (
+    <Link
+      href={href}
+      aria-current={active ? "page" : undefined}
+      className={cn(
+        "inline-flex h-10 items-center px-2.5 text-sm font-medium underline-offset-8 transition-colors duration-150",
+        active
+          ? "text-foreground decoration-brand underline decoration-2"
+          : "text-muted-foreground hover:text-foreground",
+      )}
+    >
+      {children}
+    </Link>
+  );
+}
+
 export function NavLink({ href, exact, className, children, ...props }: Props) {
   const pathname = usePathname();
   const active = isActivePath(pathname, href, exact);
